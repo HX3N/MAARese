@@ -1,0 +1,326 @@
+{
+    "Stage01": {
+        "focus": "[color:#4FA3FF]▶ 0-1[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": [
+                        "Public/DialogDonkey.png",
+                        "Public/DialogPRTS.png",
+                        "Public/DialogDobermann.png"
+                    ]
+                }
+            }
+        },
+        "next": ["Stage01_Squad"]
+    },
+
+    "Stage01_Squad": {
+        "focus": "편성 이동",
+        "next": ["Stage01_Squad_Exit"]
+    },
+    "Stage01_Squad_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Squad", "direct": true }
+            }
+        },
+        "on_error": ["Stage01_Squad"],
+        "next": ["Stage01_QuickSquad"]
+    },
+
+    "Stage01_QuickSquad": {
+        "focus": "빠른 편성",
+        "next": ["[JumpBack]Loading", "Stage01_QuickSquad_Exit"]
+    },
+    "Stage01_QuickSquad_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["QuickSquad"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [536, 180, 59, 60]
+            }
+        },
+        "next": ["Stage01_PickOperators"]
+    },
+
+    "Stage01_PickOperators": {
+        "focus": "오퍼레이터 선택",
+        "next": ["[JumpBack]Loading", "Stage01_PickOperators_Select"]
+    },
+    "Stage01_PickOperators_Select": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperatorSelectConfirm"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [407, 141, 72, 133]
+            }
+        },
+        "next": ["Stage01_PickOperators_Exit"]
+    },
+    "Stage01_PickOperators_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperatorSelectConfirm"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Stage01_PickOperators_Exit", "Stage01_Operation"],
+        "next": ["Stage01_Operation"]
+    },
+
+    "Stage01_Operation": {
+        "focus": "작전 이동",
+        "next": ["Stage01_Operation_Exit"]
+    },
+    "Stage01_Operation_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Operation" }
+            }
+        },
+        "on_error": ["Stage01_Operation"],
+        "next": ["Stage01_LastStage"]
+    },
+
+    "Stage01_LastStage": {
+        "focus": "작전 · 지난 작전",
+        "anchor": { "BattleEnterNext": "Stage01_DeployYato" },
+        "next": ["[JumpBack]Loading", "BattleEnterReady", "Stage01_LastStage_Exit"]
+    },
+    "Stage01_LastStage_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["LastStage"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Stage01_LastStage"],
+        "next": ["BattleEnter"]
+    },
+
+    "Stage01_DeployYato": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage01_Reward" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage01_DeployYato_Exit",
+            "[JumpBack]Battle2x",
+            "BattleResult",
+            "[JumpBack]BattleInProgress",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "Stage01_DeployYato_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_502_nblade", "cost": 7 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_502_nblade",
+                    "cell": [633, 300],
+                    "direction": "right"
+                }
+            }
+        },
+        "on_error": ["Stage01_DeployYato"],
+        "next": ["Stage01_DeployAmiya"]
+    },
+
+    "Stage01_DeployAmiya": {
+        "focus": "오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage01_DeployAmiya_Exit",
+            "[JumpBack]Battle2x",
+            "BattleResult",
+            "[JumpBack]BattleInProgress",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "Stage01_DeployAmiya_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_002_donkey", "cost": 18 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_002_donkey",
+                    "cell": [728, 354],
+                    "direction": "right"
+                }
+            }
+        },
+        "on_error": ["Stage01_DeployAmiya"],
+        "next": ["Stage01_DeployNoirCorne"]
+    },
+
+    "Stage01_DeployNoirCorne": {
+        "focus": "오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage01_DeployNoirCorne_Exit",
+            "[JumpBack]Battle2x",
+            "BattleResult",
+            "[JumpBack]BattleInProgress",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "Stage01_DeployNoirCorne_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_500_noirc", "cost": 14 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_500_noirc",
+                    "cell": [727, 291],
+                    "direction": "right"
+                }
+            }
+        },
+        "on_error": ["Stage01_DeployNoirCorne"],
+        "next": ["Stage01_DeployRangers"]
+    },
+
+    "Stage01_DeployRangers": {
+        "focus": "오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage01_DeployRangers_Exit",
+            "[JumpBack]Battle2x",
+            "BattleResult",
+            "[JumpBack]BattleInProgress",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "Stage01_DeployRangers_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_503_rang", "cost": 7 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_503_rang",
+                    "cell": [719, 192],
+                    "direction": "right"
+                }
+            }
+        },
+        "on_error": ["Stage01_DeployRangers"],
+        "next": ["BattleWait"]
+    },
+
+    "Stage01_Reward": {
+        "focus": "임무 보상",
+        "anchor": { "BattleResultNext": "" },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage01_RewardConfirm_Exit",
+            "Stage01_Reward_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage01_Reward_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "여기를터치해서이번임" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [125, 581, 259, 73], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage01_Reward"],
+        "next": ["Stage01_RewardConfirm"]
+    },
+
+    "Stage01_RewardConfirm": {
+        "focus": "보상 확인",
+        "next": ["[JumpBack]Loading", "Stage01_RewardConfirm_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage01_RewardConfirm_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "지금은비상사태니만큼" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [609, 609, 60, 60], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage01_RewardConfirm_Exit", "Stage01-TR1"],
+        "next": ["Stage01-TR1"]
+    }
+}

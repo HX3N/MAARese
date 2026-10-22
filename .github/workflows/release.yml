@@ -1,0 +1,80 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "릴리스 버전 (ex: 1.0.0)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - name: Resolve version
+        id: version
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            value="${GITHUB_REF_NAME}"
+            release=true
+          elif [[ -n "$INPUT_VERSION" ]]; then
+            if [[ ! "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::version must be X.Y.Z"
+              exit 1
+            fi
+            value="v${INPUT_VERSION}"
+            release=true
+          else
+            value="dev-${GITHUB_SHA::7}"
+            release=false
+          fi
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Build
+        run: uv run --no-project --python 3.12 tools/install.py --arch ${{ matrix.arch }} --version ${{ needs.version.outputs.value }} --zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MAARese-win-${{ matrix.arch }}-${{ needs.version.outputs.value }}
+          path: dist/*.zip
+
+  release:
+    needs: [version, build]
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.version.outputs.value }}
+          target_commitish: ${{ github.sha }}
+          files: dist/*.zip

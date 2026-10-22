@@ -1,0 +1,23 @@
+{
+    "Default": {
+        "rate_limit": 300,
+        "timeout": 180000,
+        "on_error": ["GameDownReset"]
+    },
+    "TemplateMatch": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "threshold": 0.8
+            }
+        }
+    },
+    "OCR": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "replace": [["([가-힣])[A-Za-z\\[\\]{}|]+([가-힣])", "$1$2"]]
+            }
+        }
+    }
+}

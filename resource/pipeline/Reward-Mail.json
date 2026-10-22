@@ -1,0 +1,124 @@
+{
+    "Reward-Mail": {
+        "focus": "[color:#4FA3FF]▶ 메일[/color]",
+        "next": ["Reward-Mail_Open"]
+    },
+
+    "Reward-Mail_Open": {
+        "focus": "메일함 열기",
+        "next": [
+            "[JumpBack]Loading",
+            "Reward-Mail_Open_Exit",
+            "[JumpBack]EarnReward",
+            "[JumpBack]VoiceResourceLater",
+            "[JumpBack]ClosePopup",
+            "[JumpBack]OpenMail"
+        ]
+    },
+    "Reward-Mail_Open_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["MailReceiveAll"]
+            }
+        },
+        "next": ["Reward-Mail_ReceiveAll"]
+    },
+    "OpenMail": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Reward-Mail/OpenMail.png",
+                "roi": [95, 0, 210, 90]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 2000 }
+            }
+        },
+        "on_error": ["Reward-Mail_Open"]
+    },
+
+    "Reward-Mail_ReceiveAll": {
+        "focus": "전부 수령",
+        "next": [
+            "[JumpBack]Loading",
+            "Reward-Mail_ReceiveAll_Exit",
+            "[JumpBack]EarnReward",
+            "[JumpBack]MailReceiveAll"
+        ]
+    },
+    "MailReceiveAll": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [1029, 633, 224, 63],
+                "template": "Reward-Mail/MailReceiveAll.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Reward-Mail_ReceiveAll_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1045, 90, 190, 30],
+                "expected": "수령"
+            }
+        },
+        "next": ["Reward-Mail_Finish"]
+    },
+
+    "Reward-Mail_Finish": {
+        "doc": "리세 전략에 따라 탈출구 노드 하나만 활성화 (0-1 / 0-1 연장 Reward-Mail_Finish_Exit_Headhunting, 0-11 Reward-Mail_Finish_Exit_Mission)",
+        "next": ["Reward-Mail_Finish_Exit_Headhunting", "Reward-Mail_Finish_Exit_Mission"]
+    },
+    "ReturnHome": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Reward-Mail/ReturnHome.png",
+                "roi": [0, 0, 200, 100]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Reward-Mail_Finish_Exit_Headhunting": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 헤드헌팅 (0-1)[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Headhunting",
+                    "direct": true,
+                    "handle": ["EarnReward", "ClosePopup", "ReturnHome"]
+                }
+            }
+        },
+        "on_error": ["Reward-Mail_Finish"],
+        "next": ["Gacha"]
+    },
+    "Reward-Mail_Finish_Exit_Mission": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 신입 임무 (0-11)[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Home",
+                    "handle": ["EarnReward", "ClosePopup", "ReturnHome"]
+                }
+            }
+        },
+        "on_error": ["Reward-Mail_Finish"],
+        "next": ["Reward-Mission"]
+    }
+}

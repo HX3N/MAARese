@@ -1,0 +1,99 @@
+{
+    "Stage10-Weekly": {
+        "focus": "[color:#4FA3FF]▶ 물자 비축[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDonkey.png", "Public/DialogPRTS.png"]
+                }
+            }
+        },
+        "next": ["Stage10-Weekly_Stockpile"]
+    },
+
+    "Stage10-Weekly_Stockpile": {
+        "focus": "물자 비축 진입",
+        "next": ["[JumpBack]Loading", "Stage10-Weekly_Stockpile_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage10-Weekly_Stockpile_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "여기를터치하여물자비" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [515, 650, 40, 25], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage10-Weekly_Stockpile_Exit", "Stage10-Weekly_ToHome"],
+        "next": ["Stage10-Weekly_ToHome"]
+    },
+
+    "Stage10-Weekly_ToHome": {
+        "focus": "메인 이동",
+        "next": ["Stage10-Weekly_ToHome_Exit"]
+    },
+    "Stage10-Weekly_ToHome_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Home",
+                    "handle": ["EarnReward", "ClosePopup", "DialogNext"]
+                }
+            }
+        },
+        "on_error": ["Stage10-Weekly_ToHome"],
+        "next": ["Stage10-Weekly_Operation"]
+    },
+
+    "Stage10-Weekly_Operation": {
+        "focus": "작전 · 지난 작전",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage10-Weekly_Operation_Exit",
+            "[JumpBack]VoiceResourceLater",
+            "[JumpBack]ClosePopup",
+            "[JumpBack]EarnReward",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage10-Weekly_Operation_LastStage",
+            "[JumpBack]HomeOperation"
+        ]
+    },
+    "Stage10-Weekly_Operation_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperationStart"]
+            }
+        },
+        "next": ["Stage10-Weekly_Done"]
+    },
+    "Stage10-Weekly_Operation_LastStage": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["LastStage"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Stage10-Weekly_Operation"]
+    },
+
+    "Stage10-Weekly_Done": {
+        "next": ["Stage11"]
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "Stage09-Mission": {
+        "focus": "[color:#4FA3FF]▶ 임무[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDonkey.png", "Public/DialogPRTS.png"]
+                }
+            }
+        },
+        "next": ["Stage09-Mission_Intern"]
+    },
+
+    "Stage09-Mission_Intern": {
+        "focus": "인턴 임무",
+        "next": ["[JumpBack]Loading", "Stage09-Mission_Intern_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage09-Mission_Intern_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [470, 0, 850, 70],
+                "expected": "임무"
+            }
+        },
+        "next": ["Stage09-Mission_ToOperation"]
+    },
+
+    "Stage09-Mission_ToOperation": {
+        "focus": "작전 이동",
+        "next": ["Stage09-Mission_ToOperation_Exit"]
+    },
+    "Stage09-Mission_ToOperation_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Operation",
+                    "handle": ["EarnReward", "ClosePopup", "DialogNext"]
+                }
+            }
+        },
+        "anchor": { "LastStageNext": "Stage09-Mission_LastStage" },
+        "on_error": ["Stage09-Mission_ToOperation"],
+        "next": ["OperationLastStage"]
+    },
+
+    "Stage09-Mission_LastStage": {
+        "anchor": { "LastStageNext": "" },
+        "next": ["Stage09-TR7"]
+    }
+}

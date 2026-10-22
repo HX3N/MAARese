@@ -1,0 +1,719 @@
+{
+    "Account_Entry": {
+        "doc": "interface Debug 시작 노드가 있으면 next를 그 노드로 교체",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "StartNode",
+                "custom_action_param": { "node": "" }
+            }
+        },
+        "next": ["Account_Resolution", "Account"]
+    },
+    "Account_Resolution": {
+        "doc": "기기 원본 해상도가 1280×720이 아닐 때 적중하는 센서",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ResolutionMismatch",
+                "custom_recognition_param": {}
+            }
+        },
+        "next": ["Account_Resolution_Notice"]
+    },
+    "Account_Resolution_Notice": {
+        "doc": "ResolutionMismatch가 현재 해상도를 문구에 넣는 해상도 안내",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 1280×720이 아닌 해상도, 계속 진행[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "next": ["Account"]
+    },
+    "Account": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AccountWipe",
+                "custom_action_param": {}
+            }
+        },
+        "anchor": { "GameDownNext": "Account" },
+        "on_error": ["Account_RootFail"],
+        "next": ["Account_LaunchApp"]
+    },
+    "Account_RootFail": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 루트 권한 없음, 작업 종료(루트를 켜고 다시 실행)[/color]",
+                "display": ["log", "modal"]
+            }
+        },
+        "doc": "AccountWipe 실패(su 실행 불가) 시 안내 후 작업 종료"
+    },
+    "Account_LaunchApp": {
+        "doc": "게임 실행, 실패 시 안내 후 작업 종료",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "LaunchApp",
+                "custom_action_param": {}
+            }
+        },
+        "on_error": ["Account_LaunchFail"],
+        "next": ["Account_Launch"]
+    },
+    "Account_LaunchFail": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 게임 실행 실패, 작업 종료[/color]",
+                "display": ["log", "modal"]
+            }
+        },
+        "doc": "LaunchApp 실패(앱 없음·기기 응답 없음) 시 안내 후 작업 종료"
+    },
+
+    "Account_Task": {
+        "doc": "next = interface 작업 방식",
+        "next": ["Account_Load"]
+    },
+    "Account_Load": {
+        "focus": "[color:#4FA3FF]▶ 계정 불러오기[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AccountLoad",
+                "custom_action_param": { "account": "" }
+            }
+        },
+        "next": ["Account_LaunchApp"]
+    },
+
+    "Account_LoadSync": {
+        "focus": "로그인 공지 닫기",
+        "anchor": { "LoginSyncRetry": "Account_LoadSync" },
+        "next": ["Account_Login_Sync"]
+    },
+    "Account_Launch": {
+        "focus": "[color:#4FA3FF]▶ 게임 실행[/color]",
+        "next": [
+            "[JumpBack]Loading",
+            "Account_Login_Name",
+            "[JumpBack]Account_Loading",
+            "[JumpBack]Account_Launch_MuMuAd",
+            "Account_Launch_Exit_Logout",
+            "[JumpBack]Account_Launch_Download",
+            "[JumpBack]Account_Launch_Voice",
+            "[JumpBack]Account_Launch_Start",
+            "[JumpBack]Account_Launch_CheckResource",
+            "[JumpBack]Account_Launch_Update",
+            "[JumpBack]Account_Launch_Notice",
+            "Account_Launch_Exit"
+        ]
+    },
+    "Account_Launch_MuMuAd": {
+        "doc": "MuMu 스토어 광고 오버레이. 광고 제거 뱃지 오른쪽의 × 클릭",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ MuMu 광고, 닫기[/color]",
+                "display": ["log"]
+            }
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "ad",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Account/MuMuAd.png",
+                                "roi": [973, 62, 210, 96]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Account/MuMuAdExit.png",
+                                "roi": "ad",
+                                "roi_offset": [76, -4, -30, 8]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_Download": {
+        "doc": "게임 나가기 버튼이 있는 리소스 다운로드 팝업",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [466, 433, 96, 26],
+                "expected": "게임나가기"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [743, 432, 47, 28] }
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_Voice": {
+        "doc": "초기화 후 음성 다운로드 창",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [440, 40, 400, 450],
+                "expected": "음성다운로드"
+            }
+        },
+        "next": ["[JumpBack]Account_Launch_Voice_UnSelect", "Account_Launch_Voice_Exit"]
+    },
+    "Account_Launch_Voice_UnSelect": {
+        "doc": "기본 선택 된 음성 언어들 선택 해제",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/VoiceDownload_UnSelect.png",
+                "threshold": 0.7,
+                "roi": [385, 40, 60, 450]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 3000 }
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_Voice_Exit": {
+        "doc": "다운로드 받지 않고 게임 시작",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [524, 580, 233, 40],
+                "expected": "다운로드"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 3000 }
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_Start": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/GameStart.png",
+                "threshold": 0.7,
+                "roi": [550, 600, 200, 120]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 3000 }
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_CheckResource": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": ["리소스", "무결성", "데이터"],
+                "roi": [340, 620, 600, 80]
+            }
+        }
+    },
+    "Account_Launch_Update": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": ["네트워크", "신경", "전달물질", "MB"],
+                "roi": [340, 620, 600, 80]
+            }
+        }
+    },
+    "Account_Launch_Notice": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": "알겠습니다",
+                "roi": [540, 520, 200, 55]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Account_Launch"]
+    },
+    "Account_Launch_Exit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/Start.png",
+                "roi": [520, 460, 240, 100]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Account_Launch"],
+        "next": ["Account_Login"]
+    },
+    "Account_Launch_Exit_Logout": {
+        "doc": "로그인 상태의 시작 화면에서 로그아웃 아이콘 클릭",
+        "focus": {
+            "Node.Action.Starting": {
+                "content": "[color:#FFD700]⚠ 구글 로그인 감지, 로그아웃[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/Logout.png",
+                "roi": [1201, 329, 72, 78]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "until": ["Account_Logout_UserCenter"] }
+            }
+        },
+        "on_error": ["Account_Launch_Exit_Logout", "Account_Logout"],
+        "next": ["Account_Logout"]
+    },
+    "Account_Logout": {
+        "focus": "계정 로그아웃",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]Account_Loading",
+            "[JumpBack]Account_Logout_Confirm",
+            "[JumpBack]Account_Logout_UserCenter",
+            "Account_Logout_Exit"
+        ]
+    },
+    "Account_Logout_UserCenter": {
+        "doc": "유저 센터의 로그아웃 버튼 클릭",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [563, 58, 147, 64],
+                "expected": ["유저", "센터"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [871, 175, 119, 42],
+                    "until": ["Account_Logout_Confirm"]
+                }
+            }
+        },
+        "on_error": ["Account_Logout"]
+    },
+    "Account_Logout_Confirm": {
+        "doc": "다른 계정 로그인 확인 팝업에서 확인",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [416, 267, 443, 61],
+                "expected": ["다른계정", "로그인"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [702, 386, 84, 44] }
+            }
+        },
+        "on_error": ["Account_Logout"]
+    },
+    "Account_Logout_Exit": {
+        "doc": "로그아웃한 시작 화면에서 Start 클릭",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/Start.png",
+                "roi": [520, 460, 240, 100]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "until": ["Account_Relogin_Find"] }
+            }
+        },
+        "on_error": ["Account_Logout_Exit", "Account_Relogin"],
+        "next": ["Account_Relogin"]
+    },
+    "Account_Relogin": {
+        "focus": "다른 계정 로그인",
+        "anchor": { "LoginSyncRetry": "Account_Relogin" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]Account_Loading",
+            "Account_Relogin_Exit",
+            "[JumpBack]Account_Login_Sync",
+            "[JumpBack]Account_Relogin_Guest",
+            "[JumpBack]Account_Relogin_Manager",
+            "[JumpBack]Account_Relogin_Other",
+            "[JumpBack]Account_Relogin_Find"
+        ]
+    },
+    "Account_Relogin_Find": {
+        "doc": "로그아웃 경로의 계정찾기 닫기. Account_Login_Find와 다른 화면",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [572, 18, 140, 56],
+                "expected": "계정찾기"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [1217, 26, 33, 32],
+                    "until": ["Account_Relogin_Other"]
+                }
+            }
+        },
+        "on_error": ["Account_Relogin"]
+    },
+    "Account_Relogin_Other": {
+        "doc": "로그아웃 뒤 시작 화면의 다른 계정 로그인 클릭",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [506, 503, 265, 48],
+                "expected": ["다른계정", "로그인"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "until": ["Account_Relogin_Manager"] }
+            }
+        },
+        "on_error": ["Account_Relogin"]
+    },
+    "Account_Relogin_Manager": {
+        "doc": "로그아웃 경로의 계정관리 클릭. Account_Login_Manager와 다른 화면",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [596, 466, 90, 34],
+                "expected": "계정관리"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [889, 527, 19, 41],
+                    "until": ["Account_Relogin_Guest"]
+                }
+            }
+        },
+        "on_error": ["Account_Relogin"]
+    },
+    "Account_Relogin_Guest": {
+        "doc": "로그아웃 경로의 상단 계정관리에서 게스트 클릭. Account_Login_GuestSelect와 다른 화면",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [569, 55, 141, 68],
+                "expected": "계정관리"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [586, 194, 43, 15],
+                    "until": ["Account_Login_Sync"]
+                }
+            }
+        },
+        "on_error": ["Account_Relogin"]
+    },
+    "Account_Relogin_Exit": {
+        "doc": "로그아웃 경로의 일주일 팝업 뒤 30일 동안 보지 않기 팝업 확인",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [559, 397, 212, 123],
+                "expected": ["30일", "동안", "보지않기"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [607, 535, 64, 47],
+                    "until": ["Account_Login_Policy"]
+                }
+            }
+        },
+        "on_error": ["Account_Relogin_Exit", "Account_Login"],
+        "next": ["Account_Login"]
+    },
+    "Account_Login": {
+        "focus": "요스타 계정 로그인",
+        "anchor": { "LoginSyncRetry": "Account_Login" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]Account_Loading",
+            "Account_Login_Exit",
+            "[JumpBack]Account_Login_Loading",
+            "Account_Login_Name",
+            "[JumpBack]Account_Login_Retry",
+            "[JumpBack]Account_Login_Policy",
+            "[JumpBack]Account_Login_Sync",
+            "[JumpBack]Account_Login_GuestSelect",
+            "[JumpBack]Account_Login_Manager",
+            "[JumpBack]Account_Login_Find"
+        ]
+    },
+    "Account_Loading": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Account/Loading.png",
+                "roi": [450, 150, 380, 250],
+                "green_mask": true
+            }
+        }
+    },
+    "Account_Login_Loading": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": ["로도스아일랜드", "신경네트워크"],
+                "roi": [497, 581, 285, 33]
+            }
+        }
+    },
+    "Account_Login_Find": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": "계정찾기",
+                "roi": [550, 10, 180, 70]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [1217, 30, 30, 30]
+            }
+        }
+    },
+    "Account_Login_Manager": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": "계정관리",
+                "roi": [595, 470, 90, 30]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [880, 520, 35, 55]
+            }
+        }
+    },
+    "Account_Login_GuestSelect": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [560, 65, 155, 55],
+                "expected": "계정관리"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [500, 180, 280, 55]
+            }
+        }
+    },
+    "Account_Login_Sync": {
+        "doc": "호출 루프가 anchor LoginSyncRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [550, 595, 220, 40],
+                "expected": ["일주일동안", "보지않기"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [905, 85, 30, 30] }
+            }
+        },
+        "on_error": ["[Anchor]LoginSyncRetry"]
+    },
+    "Account_Login_Policy": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [560, 50, 155, 65],
+                "expected": "약관확인"
+            }
+        },
+        "next": ["[JumpBack]Account_Login_Policy_Select", "Account_Login_Policy_Exit"]
+    },
+    "Account_Login_Retry": {
+        "doc": "닉네임 입력 시 빈 이름일 경우 뜨는 팝업",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [271, 301, 744, 63],
+                "expected": ["다시한번", "생각하여", "주십시오"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [586, 465, 115, 48] }
+            }
+        },
+        "on_error": ["Account_Login"]
+    },
+    "Account_Login_Policy_Select": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [255, 210, 55, 190],
+                "template": "Account/YoStarAccount_Policy_Select.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Account_Login_Policy_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [700, 581, 89, 46],
+                "expected": "^동의$"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Account_Login_Policy"]
+    },
+    "Account_Login_Name": {
+        "doc": "이름 입력 창 Hint",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [490, 380, 300, 50],
+                "expected": "내이름은"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Account_Login_Input"]
+    },
+    "Account_Login_Input": {
+        "action": {
+            "type": "InputText",
+            "param": {
+                "input_text": "Arknights"
+            }
+        },
+        "next": ["Account_Login_Enter"]
+    },
+    "Account_Login_Enter": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66
+            }
+        },
+        "next": ["Account_Login_Confirm"]
+    },
+    "Account_Login_Confirm": {
+        "doc": "이름 확인 뒤 루프 복귀, 빈 닉네임 팝업은 Account_Login_Retry가 처리",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [570, 485, 140, 40],
+                "expected": "확인"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Account_Login"],
+        "next": ["Account_Login"]
+    },
+    "Account_Login_Exit": {
+        "doc": "프롤로그 첫 스토리의 SKIP 버튼",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "next": ["Prologue"]
+    }
+}

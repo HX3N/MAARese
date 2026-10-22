@@ -1,0 +1,273 @@
+{
+    "Battle2x": {
+        "doc": "작전 속도 2배속",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Battle/Speed1x.png",
+                "roi": [1040, 5, 115, 95],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "BattleSpeed": {
+        "doc": "Deploy가 실행하는 배속 버튼 인식. 오퍼레이터 선택 중에는 비활성화되어 보이지 않음",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": ["Battle/Speed1x.png", "Battle/Speed2x.png"],
+                "roi": [1040, 5, 115, 95],
+                "green_mask": true
+            }
+        }
+    },
+    "OperationStart": {
+        "doc": "스테이지 지도에서 스테이지 선택 시 나오는 '작전 시작' 버튼. 호출 루프가 anchor OperationStartRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [830, 580, 450, 140],
+                "template": "Battle/OperationStart.png"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 2000 }
+            }
+        },
+        "on_error": ["[Anchor]OperationStartRetry"]
+    },
+    "OperationStart2": {
+        "doc": "OperationStart 다음 편성 화면의 '작전 시작' 버튼",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [1000, 330, 200, 350],
+                "template": "Battle/OperationStart2.png"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 2000 }
+            }
+        },
+        "on_error": ["BattleEnter"]
+    },
+    "BattleEnterReady": {
+        "doc": "작전 시작 버튼이 보이면 BattleEnter로 넘기는 앞 탈출구",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperationStart", "OperationStart2"]
+            }
+        },
+        "next": ["BattleEnter"]
+    },
+    "BattleInProgress": {
+        "doc": "작전 중 인식",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["BattleExit", "BattleLifePoint"]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 300
+    },
+    "BattleLifePoint": {
+        "doc": "작전 중 상단 방어 포인트 아이콘",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Battle/BattleLifePoint.png",
+                "roi": [662, 5, 69, 50],
+                "green_mask": true
+            }
+        }
+    },
+    "BattleExit": {
+        "doc": "작전 중 퇴각 버튼",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Battle/BattleExit.png",
+                "roi": [0, 0, 150, 150],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "BattleExitConfirm": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [885, 550, 156, 49],
+                "expected": "작전포기"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "BattleExitMissionFailed": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": ["탭하여", "계속하기"],
+                "roi": [540, 640, 200, 40]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "BattleExitResult": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": "종료",
+                "roi": [50, 180, 300, 80]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "BattleEnter": {
+        "focus": "작전 개시",
+        "doc": "호출 노드가 anchor BattleEnterNext로 작전 화면 이후의 루프 지정",
+        "anchor": { "OperationStartRetry": "BattleEnter" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]OperationStart",
+            "[JumpBack]OperationStart2",
+            "[JumpBack]DialogNext",
+            "BattleEngage"
+        ]
+    },
+    "BattleEngage": {
+        "focus": "작전 돌입",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["BattleInProgress"]
+            }
+        },
+        "post_delay": 3000,
+        "anchor": { "OperationStartRetry": "" },
+        "next": ["[Anchor]BattleEnterNext"]
+    },
+    "BattleRetreat": {
+        "focus": "퇴각",
+        "anchor": { "BattleEnterNext": "" },
+        "next": [
+            "[JumpBack]Loading",
+            "BattleResult",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]BattleExitMissionFailed",
+            "[JumpBack]BattleExitConfirm",
+            "[JumpBack]BattleExit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "BattleWait": {
+        "focus": "작전 종료 대기",
+        "next": [
+            "[JumpBack]Loading",
+            "BattleResult",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]Battle2x",
+            "[JumpBack]DialogNext",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "BattleWait_Tap": {
+        "doc": "종료 화면을 놓치지 않도록 클릭마다 2초 대기",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [640, 30, 1, 1]
+            }
+        },
+        "post_delay": 2000
+    },
+    "BattleResult": {
+        "doc": "호출 노드가 anchor BattleResultNext로 결과 화면 이후의 루프 지정",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["BattleExitResult"]
+            }
+        },
+        "pre_delay": 2000,
+        "action": {
+            "type": "Click"
+        },
+        "next": ["BattleResult_Done", "BattleResult"]
+    },
+    "BattleResult_Done": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["BattleExitResult"]
+            }
+        },
+        "inverse": true,
+        "next": ["[Anchor]BattleResultNext"]
+    },
+    "DeployRelease": {
+        "doc": "상단 중앙 빈 곳을 눌러 오퍼레이터 선택 상태 해제. Deploy가 직접 실행하고, 호출 루프는 anchor DeployReleaseNext로 돌아갈 곳 지정",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [596, 10, 90, 40]
+            }
+        },
+        "next": ["[Anchor]DeployReleaseNext"]
+    },
+    "DeployCard": {
+        "doc": "DeployReady·Deploy가 template을 Battle/<operator>.png로 바꿔 실행하는 배치 카드 줄 카드 인식. 밝기에 둔감해 켜진·꺼진 카드 모두 인식",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Battle/char_002_donkey.png",
+                "roi": [0, 580, 1280, 140]
+            }
+        }
+    },
+    "DeployCardActive": {
+        "doc": "DeployReady가 template을 Battle/<operator>.png로 바꿔 실행하는 켜진 카드 인식. method 10001은 밝기에 민감해 밝게 켜진 카드만 인식",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Battle/char_002_donkey.png",
+                "roi": [0, 580, 1280, 140],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "CostBinarize": {
+        "doc": "코스트 OCR의 color_filter. 흰 숫자만 남기는 GrayScale 이진화 범위",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 6,
+                "lower": [160],
+                "upper": [255]
+            }
+        }
+    }
+}

@@ -1,0 +1,97 @@
+{
+    "Stage04-TR4": {
+        "focus": "[color:#4FA3FF]▶ TR-4[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "next": ["Stage04-TR4_Select"]
+    },
+
+    "Stage04-TR4_Select": {
+        "focus": "스테이지 선택",
+        "next": ["Stage04-TR4_Select_Exit"]
+    },
+    "Stage04-TR4_Select_Exit": {
+        "doc": "스테이지 선택",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectStage",
+                "custom_action_param": { "stage": "TR-4" }
+            }
+        },
+        "on_error": ["Stage04-TR4_Select"],
+        "anchor": { "BattleEnterNext": "Stage04-TR4_DeployFang" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage04-TR4_DeployFang": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage04-TR4_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage04-TR4_DeployFang_Plume",
+            "Stage04-TR4_DeployFang_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage04-TR4_DeployFang_Plume": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_192_falco", "cost": 8 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_192_falco",
+                    "cell": [729, 332],
+                    "direction": "right",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage04-TR4_DeployFang_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_123_fang", "cost": 9 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_123_fang",
+                    "cell": [930, 313],
+                    "direction": "left",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage04-TR4_DeployFang"],
+        "next": ["BattleWait"]
+    },
+
+    "Stage04-TR4_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage05"]
+    }
+}

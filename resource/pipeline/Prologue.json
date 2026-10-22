@@ -1,0 +1,365 @@
+{
+    "Prologue": {
+        "focus": "[color:#4FA3FF]▶ 프롤로그[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDonkey.png", "Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "anchor": { "LoginSyncRetry": "" },
+        "next": [
+            "[JumpBack]Loading",
+            "Prologue_Exit",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]Prologue_Exusiai",
+            "[JumpBack]Prologue_Texas_Direction",
+            "[JumpBack]Prologue_Texas",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Prologue_Texas": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "제가가리키는위치가보"
+                }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [1100, 655],
+                "end": [580, 425],
+                "duration": 300,
+                "end_hold": 100
+            }
+        },
+        "post_delay": 1000
+    },
+    "Prologue_Texas_Direction": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "그리고중앙에있는방향" }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [580, 425],
+                "end": [580, 425],
+                "end_offset": [250, 0, 0, 0],
+                "duration": 150
+            }
+        },
+        "post_delay": 1000
+    },
+    "Prologue_Exusiai": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "안전을확보하기위해이" }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [1220, 655],
+                "end": [690, 310],
+                "duration": 300,
+                "end_hold": 100
+            }
+        },
+        "post_delay": 1000
+    },
+    "Prologue_Exusiai_Direction": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "엑시아씨는스나이퍼오" }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [690, 310],
+                "end": [690, 310],
+                "end_offset": [250, 0, 0, 0],
+                "duration": 150
+            }
+        },
+        "post_delay": 1000
+    },
+    "Prologue_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Prologue_Exusiai_Direction"]
+            }
+        },
+        "next": ["Prologue_FirstBattle"]
+    },
+
+    "Prologue_FirstBattle": {
+        "focus": "첫 전투 완료",
+        "next": [
+            "[JumpBack]Loading",
+            "Prologue_FirstBattle_SkipPlot",
+            "[JumpBack]Prologue_Exusiai_Direction",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Battle2x"
+        ]
+    },
+    "Prologue_FirstBattle_SkipPlot": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Prologue_FirstBattle_Exit_Confirm",
+            "Prologue_FirstBattle_Exit_Done",
+            "Prologue_FirstBattle_SkipPlot"
+        ],
+        "post_delay": 1000
+    },
+    "Prologue_FirstBattle_Exit_Done": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "inverse": true,
+        "next": ["Prologue_SecondBattle"]
+    },
+    "Prologue_FirstBattle_Exit_Confirm": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlotConfirm"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Prologue_SecondBattle"]
+    },
+
+    "Prologue_SecondBattle": {
+        "focus": "두 번째 전투",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]Prologue_SecondBattle_SkillTexas",
+            "[JumpBack]Prologue_SecondBattle_SkillTexas_Use",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Battle2x",
+            "Prologue_SecondBattle_Cost"
+        ]
+    },
+    "Prologue_SecondBattle_SkillTexas": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "오퍼레이터들의능력을"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [470, 303, 18, 18], "pre_click": true }
+            }
+        },
+        "on_error": ["Prologue_SecondBattle"]
+    },
+    "Prologue_SecondBattle_SkillTexas_Use": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "그럼스킬을사용해보죠" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [860, 410, 39, 40], "pre_click": true }
+            }
+        },
+        "anchor": { "DeployReleaseNext": "Prologue_SecondBattle" },
+        "on_error": ["Prologue_SecondBattle"],
+        "next": ["Prologue_SkillUse_Speed", "DeployRelease"]
+    },
+    "Prologue_SecondBattle_Cost": {
+        "doc": "코스트 65 이상",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "cost": 65 }
+            }
+        },
+        "next": ["Prologue_SecondBattle_Exit"]
+    },
+    "Prologue_SecondBattle_Exit": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [678, 208, 25, 20]
+            }
+        },
+        "post_delay": 100,
+        "anchor": {
+            "DeployReleaseNext": "Prologue_CostWait"
+        },
+        "next": ["Prologue_SkillUse"]
+    },
+    "Prologue_SkillUse": {
+        "doc": "선택한 오퍼레이터의 스킬 사용 버튼",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [860, 410, 39, 40]
+            }
+        },
+        "next": ["Prologue_SkillUse_Speed", "DeployRelease"]
+    },
+    "Prologue_SkillUse_Speed": {
+        "doc": "배속 버튼이 보이면 선택 상태가 아니므로 해제 생략",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["BattleSpeed"]
+            }
+        },
+        "next": ["[Anchor]DeployReleaseNext"]
+    },
+
+    "Prologue_CostWait": {
+        "focus": "코스트 대기",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Battle2x",
+            "Prologue_CostWait_Cost"
+        ]
+    },
+    "Prologue_CostWait_Cost": {
+        "doc": "코스트 95 이상",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "cost": 95 }
+            }
+        },
+        "next": ["Prologue_CostWait_SkillPotato"]
+    },
+    "Prologue_CostWait_SkillPotato": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [1116, 305, 26, 22]
+            }
+        },
+        "post_delay": 100,
+        "anchor": {
+            "DeployReleaseNext": "Prologue_CostWait_SkillExusiai"
+        },
+        "next": ["Prologue_SkillUse"]
+    },
+    "Prologue_CostWait_SkillExusiai": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [1066, 506, 21, 20]
+            }
+        },
+        "post_delay": 100,
+        "anchor": {
+            "DeployReleaseNext": "Prologue_CostWait_SkillTexas"
+        },
+        "next": ["Prologue_SkillUse"]
+    },
+    "Prologue_CostWait_SkillTexas": {
+        "pre_delay": 3500,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [473, 314, 17, 15]
+            }
+        },
+        "post_delay": 100,
+        "anchor": {
+            "DeployReleaseNext": "Prologue_PostBattle"
+        },
+        "next": ["Prologue_SkillUse"]
+    },
+
+    "Prologue_PostBattle": {
+        "focus": "두 번째 전투 완료",
+        "anchor": { "DeployReleaseNext": "" },
+        "next": ["[JumpBack]Loading", "Prologue_PostBattle_SkipPlot", "[JumpBack]DialogNext"]
+    },
+    "Prologue_PostBattle_SkipPlot": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Prologue_PostBattle_Exit_Confirm",
+            "Prologue_PostBattle_Exit_Done",
+            "Prologue_PostBattle_SkipPlot"
+        ],
+        "post_delay": 1000
+    },
+    "Prologue_PostBattle_Exit_Done": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "inverse": true,
+        "next": ["Newbie"]
+    },
+    "Prologue_PostBattle_Exit_Confirm": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlotConfirm"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Newbie"]
+    }
+}

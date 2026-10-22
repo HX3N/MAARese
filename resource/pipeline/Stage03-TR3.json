@@ -1,0 +1,167 @@
+{
+    "Stage03-TR3": {
+        "focus": "[color:#4FA3FF]▶ TR-3[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "next": ["Stage03-TR3_StageSelect"]
+    },
+
+    "Stage03-TR3_StageSelect": {
+        "focus": "스테이지 선택",
+        "next": ["Stage03-TR3_StageSelect_Exit"]
+    },
+    "Stage03-TR3_StageSelect_Exit": {
+        "doc": "스테이지 선택",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectStage",
+                "custom_action_param": { "stage": "TR-3" }
+            }
+        },
+        "on_error": ["Stage03-TR3_StageSelect"],
+        "anchor": { "BattleEnterNext": "Stage03-TR3_DeployJessica" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage03-TR3_DeployJessica": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage03-TR3_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage03-TR3_DeployJessica_Yato",
+            "Stage03-TR3_DeployJessica_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage03-TR3_DeployJessica_Yato": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_502_nblade", "cost": 7 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_502_nblade",
+                    "cell": [731, 374],
+                    "direction": "up",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage03-TR3_DeployJessica_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_235_jesica", "cost": 10 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_235_jesica",
+                    "cell": [814, 181],
+                    "direction": "left",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage03-TR3_DeployJessica"],
+        "next": ["Stage03-TR3_DeployRangers"]
+    },
+
+    "Stage03-TR3_DeployRangers": {
+        "focus": "오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage03-TR3_DeployRangers_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage03-TR3_DeployRangers_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_503_rang", "cost": 7 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_503_rang",
+                    "cell": [823, 259],
+                    "direction": "left",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage03-TR3_DeployRangers"],
+        "next": ["Stage03-TR3_DeployHibiscus"]
+    },
+
+    "Stage03-TR3_DeployHibiscus": {
+        "focus": "오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage03-TR3_DeployHibiscus_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage03-TR3_DeployHibiscus_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_120_hibisc", "cost": 15 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_120_hibisc",
+                    "cell": [926, 249],
+                    "direction": "left",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage03-TR3_DeployHibiscus"],
+        "next": ["BattleWait"]
+    },
+
+    "Stage03-TR3_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage04"]
+    }
+}

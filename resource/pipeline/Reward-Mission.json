@@ -1,0 +1,129 @@
+{
+    "Reward-Mission": {
+        "focus": "[color:#4FA3FF]▶ 로도스 적응하기[/color]",
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Reward-Mission_Home"]
+    },
+    "Reward-Mission_Home": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Home" }
+            }
+        },
+        "on_error": ["Reward-Mission"],
+        "next": ["Reward-Mission_Settings"]
+    },
+
+    "Reward-Mission_Settings": {
+        "focus": "임무 화면 이동",
+        "next": ["Reward-Mission_Settings_Exit"]
+    },
+    "Reward-Mission_Settings_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["HomeSettingButton"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [356, 19, 91, 36]
+            }
+        },
+        "next": ["Reward-Mission_Tab"]
+    },
+
+    "Reward-Mission_Tab": {
+        "focus": "신입 임무",
+        "next": ["[JumpBack]Loading", "Reward-Mission_Tab_Exit"]
+    },
+    "Reward-Mission_Tab_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [120, 203, 109, 41],
+                "expected": "신입임무"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Reward-Mission_List"]
+    },
+
+    "Reward-Mission_List": {
+        "focus": "보상 목록 확인",
+        "next": ["[JumpBack]Loading", "Reward-Mission_List_Exit"]
+    },
+    "Reward-Mission_List_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [258, 76, 706, 43],
+                "expected": ["다채로운", "보상"]
+            }
+        },
+        "next": ["Reward-Mission_Claim"]
+    },
+
+    "Reward-Mission_Claim": {
+        "focus": "신입 임무 보상 수령",
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]EarnReward",
+            "[JumpBack]Reward-Mission_Claim_Click",
+            "Reward-Mission_Claim_Exit"
+        ]
+    },
+    "Reward-Mission_Claim_Click": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [928, 133, 244, 107],
+                "expected": ["획득", "가능"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Reward-Mission_Claim"]
+    },
+    "Reward-Mission_Claim_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Reward-Mission_Claim_Exit", "Reward-Mission_Headhunting"],
+        "next": ["Reward-Mission_Headhunting"]
+    },
+
+    "Reward-Mission_Headhunting": {
+        "focus": "헤드헌팅 이동",
+        "next": ["Reward-Mission_Headhunting_Exit"]
+    },
+    "Reward-Mission_Headhunting_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Headhunting", "direct": true }
+            }
+        },
+        "on_error": ["Reward-Mission_Headhunting"],
+        "next": ["Gacha"]
+    }
+}

@@ -1,0 +1,586 @@
+{
+    "DialogArea": {
+        "doc": "Dialog가 expected를 덮어써 실행하는 대화창 첫 줄 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [210, 65, 700, 45],
+                "replace": [
+                    ["([가-힣])[A-Za-z\\[\\]{}|]+([가-힣])", "$1$2"],
+                    ["[!\"'(),\\-./:=?@\\[\\]_{}~—…★]", ""]
+                ]
+            }
+        }
+    },
+    "DeploySwipe": {
+        "doc": "Deploy가 좌표를 덮어써 실행하는 스와이프. 직접 실행 동작의 기본 지연 제거",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": {
+            "type": "Swipe"
+        }
+    },
+    "DeployCost": {
+        "doc": "DeployReady가 읽는 배치 코스트 숫자",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1199, 494, 80, 44],
+                "expected": "^\\d+$",
+                "threshold": 0.7,
+                "model": "en_us",
+                "only_rec": true,
+                "color_filter": "CostBinarize",
+                "replace": [
+                    ["[Oo]", "0"],
+                    ["[IiLl]", "1"],
+                    ["[\\{\\}\\[\\]]", "1"],
+                    ["B", "8"],
+                    ["^\\.", ""],
+                    [" ", ""]
+                ]
+            }
+        }
+    },
+    "CostArea": {
+        "doc": "roi 참조용 고정 영역: 전투 배치 코스트 숫자",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [1199, 494, 80, 44]
+            }
+        }
+    },
+    "LowerDialogArea": {
+        "doc": "Dialog가 expected를 덮어써 실행하는 아래쪽 대화창 첫 줄 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [245, 505, 700, 45],
+                "replace": [
+                    ["([가-힣])[A-Za-z\\[\\]{}|]+([가-힣])", "$1$2"],
+                    ["[!\"'(),\\-./:=?@\\[\\]_{}~—…★]", ""]
+                ]
+            }
+        }
+    },
+    "GameDownReset": {
+        "doc": "노드 실패(on_error)·타임아웃 초과(Watchdog) 시 화면 문구로 원인 구분 후 리세 재시작. loop_limit_min = interface 타임아웃",
+        "attach": { "loop_limit_min": 3 },
+        "next": ["GameDownReset_Network", "GameDownReset_Update", "GameDownReset_Unknown"]
+    },
+    "GameDownReset_Network": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 네트워크 연결 끊김, 재시작[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [275, 310, 729, 42],
+                "expected": ["네트워크", "로그인"]
+            }
+        },
+        "next": ["[Anchor]GameDownNext", "GameDownStop"]
+    },
+    "GameDownReset_Update": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 게임 데이터 동기화 (4시), 재시작[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [275, 310, 729, 42],
+                "expected": ["업데이트", "동기화"]
+            }
+        },
+        "next": ["[Anchor]GameDownNext", "GameDownStop"]
+    },
+    "GameDownReset_Unknown": {
+        "focus": {
+            "Node.PipelineNode.Starting": {
+                "content": "[color:#FFD700]⚠ 예상치 못한 오류, 재시작[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "next": ["[Anchor]GameDownNext", "GameDownStop"]
+    },
+    "GameDownStop": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 귀환점 없음, 작업 종료[/color]",
+                "display": ["log", "toast"]
+            }
+        },
+        "doc": "GameDownNext가 없는 진입에서 재귀 없이 작업 종료"
+    },
+    "DialogNext": {
+        "doc": "다이얼로그 프로필 클릭으로 대사 넘김",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 0, 384, 720],
+                "template": [
+                    "Public/DialogDonkey.png",
+                    "Public/DialogPRTS.png",
+                    "Public/DialogDobermann.png",
+                    "Public/DialogClosure.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SkipPlot": {
+        "doc": "전투 전/후 프롤로그 스킵",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/SkipPlot.png",
+                "roi": [1096, 0, 182, 131],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["SkipPlotConfirm", "SkipPlot_Done", "SkipPlot"],
+        "post_delay": 1000
+    },
+    "SkipPlotConfirm": {
+        "doc": "플롯이 사라지는 동안 남은 SKIP 버튼 재클릭 방지 대기",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/SkipPlotConfirm.png",
+                "roi": [721, 290, 149, 244],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1000
+    },
+    "SkipPlot_Done": {
+        "doc": "확인창 없이 SKIP 버튼이 사라졌을 때 루프로 복귀",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["SkipPlot"]
+            }
+        },
+        "inverse": true
+    },
+    "OpenNavigation": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 0, 400, 100],
+                "template": "Public/OpenNavigation.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "LoadingText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [716, 640, 180, 43],
+                "expected": ["신경", "피드백", "전달"]
+            }
+        }
+    },
+    "LoadingIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/Loading.png",
+                "roi": [580, 610, 120, 110],
+                "green_mask": true
+            }
+        }
+    },
+    "LoadingRhodoes": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/LoadingRhodoes.png",
+                "roi": [500, 230, 280, 235],
+                "green_mask": true
+            }
+        }
+    },
+    "LoadingBlack": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [960, 0, 320, 180],
+                "method": 4,
+                "lower": [0, 0, 0],
+                "upper": [20, 20, 20],
+                "count": 57500
+            }
+        }
+    },
+    "Loading": {
+        "doc": "작업 이동 사이 로딩 중 대기",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["LoadingText", "LoadingIcon", "LoadingRhodoes", "LoadingBlack"]
+            }
+        }
+    },
+    "ClosePopup": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/ClosePopup.png",
+                "roi": [1030, 0, 250, 250]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "VoiceResourceLater": {
+        "doc": "미다운로드 음성 리소스 팝업의 나중에 클릭",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [227, 280, 842, 48],
+                "expected": "음성리소스"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [394, 467, 102, 51]
+            }
+        }
+    },
+    "EarnReward": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/EarnReward.png",
+                "roi": [544, 0, 210, 201],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [635, 670, 10, 10]
+            }
+        }
+    },
+    "HomeSettingButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/HomeSettingButton.png",
+                "roi": [0, 0, 80, 70],
+                "green_mask": true
+            }
+        }
+    },
+    "GachaSkip": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/GachaSkip.png",
+                "roi": [1080, 0, 200, 200]
+            }
+        }
+    },
+    "StageName": {
+        "doc": "SelectStage가 expected를 스테이지 코드로 바꿔 실행하는 0장 지도 스테이지 코드 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [0, 190, 1280, 310],
+                "expected": "^$",
+                "replace": [
+                    ["[Oo]", "0"],
+                    ["[IiLl]", "1"],
+                    ["[\\{\\}\\[\\]]", "1"],
+                    ["B", "8"],
+                    ["^\\.", ""],
+                    [" ", ""]
+                ]
+            }
+        }
+    },
+    "StageTemplate": {
+        "doc": "SelectStage가 template을 스테이지 템플릿으로 바꿔 실행하는 0장 지도 스테이지 라벨 템플릿",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 190, 1280, 310],
+                "template": "Public/Stage/0-1.png"
+            }
+        }
+    },
+    "OperatorNameUpper": {
+        "doc": "SelectOperator가 expected를 오퍼레이터 이름으로 바꿔 실행하는 빠른 편성 선택 화면 위쪽 이름 줄 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [375, 315, 905, 35],
+                "expected": "^$"
+            }
+        }
+    },
+    "OperatorNameLower": {
+        "doc": "SelectOperator가 expected를 오퍼레이터 이름으로 바꿔 실행하는 빠른 편성 선택 화면 아래쪽 이름 줄 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [375, 590, 905, 35],
+                "expected": "^$"
+            }
+        }
+    },
+    "OperatorDetailName": {
+        "doc": "SelectOperator가 고른 오퍼레이터를 확인하는 상세 패널 이름 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [14, 101, 160, 40],
+                "expected": "^$"
+            }
+        }
+    },
+    "StageMapSwipe": {
+        "doc": "SelectStage가 뒤쪽 스테이지를 찾을 때 쓰는 챕터 지도 스와이프",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [900, 100, 1, 1],
+                "end": [300, 100, 1, 1],
+                "duration": 500
+            }
+        },
+        "post_delay": 1000
+    },
+    "StageDeselect": {
+        "doc": "SelectStage가 쓰는 챕터 지도 스테이지 선택 해제",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperationStart"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [640, 100, 1, 1]
+            }
+        },
+        "post_delay": 500
+    },
+    "Home": {
+        "doc": "메인화면 판정. box는 작전 버튼",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "HomeSettingButton",
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [902, 122, 125, 80],
+                                "expected": "작전"
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "HomeOperation": {
+        "doc": "메인화면에는 내비게이션이 없어 작전 화면으로 먼저 이동",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Home"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "HomeSquad": {
+        "action": { "type": "Click", "param": { "target": [744, 320, 115, 66] } }
+    },
+    "HomeOperator": {
+        "action": { "type": "Click", "param": { "target": [974, 328, 185, 67] } }
+    },
+    "HomeHeadhunting": {
+        "action": { "type": "Click", "param": { "target": [1112, 497, 130, 50] } }
+    },
+    "NavOpened": {
+        "doc": "내비게이션 메뉴가 열린 상태. Nav 노드가 이 인식을 빌려 고정 좌표 클릭",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Public/NavOpened.png",
+                "roi": [0, 100, 200, 150],
+                "green_mask": true
+            }
+        }
+    },
+    "NavHome": {
+        "recognition": { "type": "Or", "param": { "any_of": ["NavOpened"] } },
+        "action": { "type": "Click", "param": { "target": [68, 257, 49, 46] } }
+    },
+    "NavSquad": {
+        "recognition": { "type": "Or", "param": { "any_of": ["NavOpened"] } },
+        "action": { "type": "Click", "param": { "target": [210, 81, 52, 43] } }
+    },
+    "NavOperator": {
+        "recognition": { "type": "Or", "param": { "any_of": ["NavOpened"] } },
+        "action": { "type": "Click", "param": { "target": [286, 258, 47, 44] } }
+    },
+    "NavOperation": {
+        "recognition": { "type": "Or", "param": { "any_of": ["NavOpened"] } },
+        "action": { "type": "Click", "param": { "target": [507, 51, 47, 49] } }
+    },
+    "NavHeadhunting": {
+        "recognition": { "type": "Or", "param": { "any_of": ["NavOpened"] } },
+        "action": { "type": "Click", "param": { "target": [1055, 260, 51, 47] } }
+    },
+    "OperatorSelectConfirm": {
+        "doc": "오퍼레이터 선택 화면의 확인 버튼 (빠른 편성 진입 확인용)",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1104, 661, 131, 39],
+                "expected": "확인"
+            }
+        }
+    },
+    "LastStage": {
+        "doc": "작전 화면의 지난 작전 바로가기",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [964, 529, 216, 27],
+                "expected": ["지난작전", "바로가기"]
+            }
+        }
+    },
+    "OperationLastStage": {
+        "doc": "호출 노드가 anchor LastStageNext로 지도 도착 이후 루프 지정",
+        "focus": "작전 · 지난 작전",
+        "next": [
+            "[JumpBack]Loading",
+            "OperationLastStage_Exit",
+            "[JumpBack]DialogNext",
+            "[JumpBack]OperationLastStage_Click"
+        ]
+    },
+    "OperationLastStage_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OperationStart"]
+            }
+        },
+        "next": ["[Anchor]LastStageNext"]
+    },
+    "OperationLastStage_Click": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["LastStage"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["OperationLastStage"]
+    },
+    "QuickSquad": {
+        "doc": "편성 화면 오른쪽 위 빠른 편성 버튼 글자",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [949, 21, 112, 40],
+                "expected": "빠른편성"
+            }
+        }
+    },
+    "QuickSelectReset": {
+        "doc": "빠른 편성 선택 화면 아래의 선택초기화 버튼 글자. 선택 화면 진입 판정용",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [451, 661, 121, 35],
+                "expected": "선택초기화"
+            }
+        }
+    },
+    "QuickSelectSwipe": {
+        "doc": "SelectOperator가 뒤쪽 오퍼레이터를 찾을 때 쓰는 목록 왼쪽 스와이프",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [790, 360, 1, 1],
+                "end": [490, 360, 1, 1],
+                "duration": 500
+            }
+        },
+        "post_delay": 1000
+    },
+    "SquadFormatGuide": {
+        "doc": "편성 가이드(tr_01·tr_03·tr_04·tr_06)가 빠른 편성 버튼을 누르게 하는 대사. tr_04만 '터치하여', 나머지는 '터치해서'",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "여기를터치해서편성화면으로"
+                }
+            }
+        }
+    },
+    "SquadRequestPopup": {
+        "doc": "편성 가이드가 직군 편성을 요청하는 팝업. tr_05만 편성 화면에서 표시",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "박사님" }
+            }
+        }
+    },
+    "FirstOperatorGuide": {
+        "doc": "레벨업·스킬 가이드가 오퍼레이터 관리 화면에서 강조하는 첫 오퍼레이터(아미야) 카드",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 60, 1280, 540],
+                "template": "Public/LevelUpDonkey.png"
+            }
+        }
+    }
+}

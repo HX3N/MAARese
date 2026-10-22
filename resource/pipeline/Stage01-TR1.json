@@ -1,0 +1,150 @@
+{
+    "Stage01-TR1": {
+        "focus": "[color:#4FA3FF]▶ TR-1[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": [
+                        "Public/DialogDonkey.png",
+                        "Public/DialogPRTS.png",
+                        "Public/DialogDobermann.png"
+                    ]
+                }
+            }
+        },
+        "next": ["Stage01-TR1_Intro"]
+    },
+
+    "Stage01-TR1_Intro": {
+        "focus": "작전 개시 안내",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage01-TR1_Intro_Exit",
+            "[JumpBack]Stage01-TR1_Intro_Start",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage01-TR1_Intro_Start": {
+        "doc": "지도의 작전개시 클릭 안내가 뜬 뒤에만 버튼 클릭",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "여기를터치하여작전전"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [1063, 626, 181, 50], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage01-TR1_Intro"]
+    },
+    "Stage01-TR1_Intro_Exit": {
+        "doc": "편성 화면 팝업 뒤 작전 시작 버튼 안내가 뜨면 BattleEnter로 진행",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "버튼을터치하여튜토리" }
+            }
+        },
+        "anchor": { "BattleEnterNext": "Stage01-TR1_Deploy" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage01-TR1_Deploy": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage01-TR1_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage01-TR1_Deploy_Rangers",
+            "[JumpBack]Stage01-TR1_Deploy_Yato",
+            "Stage01-TR1_Deploy_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage01-TR1_Deploy_Rangers": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_503_rang" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_503_rang",
+                    "cell": [633, 466],
+                    "direction": "up",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage01-TR1_Deploy_Yato": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_502_nblade" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_502_nblade",
+                    "cell": [673, 394],
+                    "direction": "up",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage01-TR1_Deploy_Exit": {
+        "doc": "히비스커스 배치",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_120_hibisc" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_120_hibisc",
+                    "cell": [523, 375],
+                    "direction": "right",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage01-TR1_Deploy"],
+        "next": ["BattleWait"]
+    },
+
+    "Stage01-TR1_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage02"]
+    }
+}

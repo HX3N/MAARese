@@ -1,0 +1,985 @@
+{
+    "Stage11-Infrast": {
+        "focus": "[color:#4FA3FF]▶ 기반시설[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogPRTS.png", "Public/DialogClosure.png"]
+                }
+            }
+        },
+        "next": ["Stage11-Infrast_Move"]
+    },
+
+    "Stage11-Infrast_Move": {
+        "focus": "기반시설 이동",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Move_Exit",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage11-Infrast_Move_Spam"
+        ]
+    },
+    "Stage11-Infrast_Move_Spam": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [440, 260, 400, 200]
+            }
+        }
+    },
+    "Stage11-Infrast_Move_Exit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [0, 0, 384, 720],
+                "template": "Public/DialogClosure.png"
+            }
+        },
+        "next": ["Stage11-Infrast_BuildMode"]
+    },
+
+    "Stage11-Infrast_BuildMode": {
+        "focus": "전환 · 건설 모드",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Elevator_Exit",
+            "Stage11-Infrast_BuildMode_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_BuildMode_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "일을하려면일단방청소" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [37, 182, 184, 48],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_BuildMode"],
+        "next": ["Stage11-Infrast_Elevator"]
+    },
+
+    "Stage11-Infrast_Elevator": {
+        "focus": "엘리베이터",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_LowerFloor",
+            "BuildingConfirmRetry": "Stage11-Infrast_ElevatorClean"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "Stage11-Infrast_Elevator_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_Elevator_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_LowerFloor",
+            "BuildingConfirmRetry": "Stage11-Infrast_ElevatorClean"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "엘리베이터는각구역으" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [306, 161, 28, 81],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_Elevator"],
+        "next": ["Stage11-Infrast_ElevatorClean"]
+    },
+
+    "Stage11-Infrast_ElevatorClean": {
+        "focus": "엘리베이터 · 청소 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_LowerFloor_Exit",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_LowerFloor": {
+        "focus": "아래층",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_EmptyRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_LowerFloorClean"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "Stage11-Infrast_LowerFloor_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_LowerFloor_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_EmptyRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_LowerFloorClean"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "오케이그럼계속해서아" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [304, 270, 33, 76],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_LowerFloor"],
+        "next": ["Stage11-Infrast_LowerFloorClean"]
+    },
+
+    "Stage11-Infrast_LowerFloorClean": {
+        "focus": "아래층 · 청소 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_EmptyRoom_Exit",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_EmptyRoom": {
+        "focus": "빈방",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_NextRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_EmptyRoomClean"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "Stage11-Infrast_EmptyRoom_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_EmptyRoom_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_NextRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_EmptyRoomClean"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "빈방을터치해봐" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_EmptyRoom"],
+        "next": ["Stage11-Infrast_EmptyRoomClean"]
+    },
+
+    "Stage11-Infrast_EmptyRoomClean": {
+        "focus": "빈방 · 청소 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_NextRoom_Exit",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_NextRoom": {
+        "focus": "다음 방",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_LastRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_NextRoomClean"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "Stage11-Infrast_NextRoom_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_NextRoom_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_LastRoom",
+            "BuildingConfirmRetry": "Stage11-Infrast_NextRoomClean"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "아직안끝났어정리를계" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_NextRoom"],
+        "next": ["Stage11-Infrast_NextRoomClean"]
+    },
+
+    "Stage11-Infrast_NextRoomClean": {
+        "focus": "다음 방 · 청소 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_LastRoom_Exit",
+            "Stage11-Infrast_Room_Exit_Confirm",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_LastRoom": {
+        "focus": "마지막 방",
+        "anchor": { "BuildingConfirmNext": "Stage11-Infrast_Power" },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_LastRoomClean_Exit",
+            "Stage11-Infrast_LastRoom_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_LastRoom_Exit": {
+        "anchor": { "BuildingConfirmNext": "Stage11-Infrast_Power" },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "이제이방만남았네" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_LastRoom"],
+        "next": ["Stage11-Infrast_LastRoomClean"]
+    },
+
+    "Stage11-Infrast_LastRoomClean": {
+        "focus": "마지막 방 · 청소 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Power_Exit",
+            "Stage11-Infrast_LastRoomClean_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_LastRoomClean_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "이방까지정리하면한숨" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [844, 517, 227, 63],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_LastRoomClean"],
+        "next": ["[Anchor]BuildingConfirmNext"]
+    },
+
+    "Stage11-Infrast_Power": {
+        "focus": "발전소",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_Factory",
+            "BuildingConfirmRetry": "Stage11-Infrast_PowerBuild"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Build",
+            "Stage11-Infrast_Power_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_Power_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_Factory",
+            "BuildingConfirmRetry": "Stage11-Infrast_PowerBuild"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "정리가끝난방을터치해" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_Power"],
+        "next": ["Stage11-Infrast_PowerBuild"]
+    },
+
+    "Stage11-Infrast_PowerBuild": {
+        "focus": "발전소 · 건설 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Factory_Exit",
+            "Stage11-Infrast_Room_Exit_Build",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_Factory": {
+        "focus": "제조소",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_Trade",
+            "BuildingConfirmRetry": "Stage11-Infrast_FactoryBuild"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Build",
+            "Stage11-Infrast_Factory_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_Factory_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_Trade",
+            "BuildingConfirmRetry": "Stage11-Infrast_FactoryBuild"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "이제빈방을터치해봐" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_Factory"],
+        "next": ["Stage11-Infrast_FactoryBuild"]
+    },
+
+    "Stage11-Infrast_FactoryBuild": {
+        "focus": "제조소 · 건설 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Trade_Exit",
+            "Stage11-Infrast_Room_Exit_Build",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_Trade": {
+        "focus": "무역소",
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_NormalMode",
+            "BuildingConfirmRetry": "Stage11-Infrast_TradeBuild"
+        },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_Room_Exit_Build",
+            "Stage11-Infrast_Trade_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_Trade_Exit": {
+        "anchor": {
+            "BuildingConfirmNext": "Stage11-Infrast_NormalMode",
+            "BuildingConfirmRetry": "Stage11-Infrast_TradeBuild"
+        },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "그럼마지막으로청소한" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_Trade"],
+        "next": ["Stage11-Infrast_TradeBuild"]
+    },
+
+    "Stage11-Infrast_TradeBuild": {
+        "focus": "무역소 · 건설 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_NormalMode_Exit",
+            "Stage11-Infrast_Room_Exit_Build",
+            "[JumpBack]DialogNext"
+        ]
+    },
+
+    "Stage11-Infrast_NormalMode": {
+        "focus": "전환 · 일반 모드",
+        "anchor": { "BuildingConfirmNext": "", "BuildingConfirmRetry": "" },
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryEnter_Exit",
+            "Stage11-Infrast_NormalMode_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_NormalMode_Exit": {
+        "anchor": { "BuildingConfirmNext": "", "BuildingConfirmRetry": "" },
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "일반모드로전환부탁해" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [40, 182, 176, 45],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_NormalMode"],
+        "next": ["Stage11-Infrast_FactoryEnter"]
+    },
+
+    "Stage11-Infrast_FactoryEnter": {
+        "focus": "제조소 · 입장",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryPanel_Exit",
+            "Stage11-Infrast_FactoryEnter_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryEnter_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "제조소를터치해줘" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [243, 281, 53, 53],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryEnter"],
+        "next": ["Stage11-Infrast_FactoryPanel"]
+    },
+
+    "Stage11-Infrast_FactoryPanel": {
+        "focus": "제조소 · 제조 화면",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactorySlot_Exit",
+            "Stage11-Infrast_FactoryPanel_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryPanel_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "터치해서제조화면을열" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [33, 550, 438, 158],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryPanel"],
+        "next": ["Stage11-Infrast_FactorySlot"]
+    },
+
+    "Stage11-Infrast_FactorySlot": {
+        "focus": "제조소 · 오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryOperator_Exit",
+            "Stage11-Infrast_FactorySlot_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactorySlot_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "여기를터치해서오퍼레"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [288, 611, 73, 71],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactorySlot"],
+        "next": ["Stage11-Infrast_FactoryOperator"]
+    },
+
+    "Stage11-Infrast_FactoryOperator": {
+        "focus": "제조소 · 오퍼레이터 선택",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryAssign_Exit",
+            "Stage11-Infrast_FactoryOperator_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryOperator_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "터치해서오퍼레이터를" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [444, 147, 76, 151],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryOperator"],
+        "next": ["Stage11-Infrast_FactoryAssign"]
+    },
+
+    "Stage11-Infrast_FactoryAssign": {
+        "focus": "제조소 · 배치 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryOutput_Exit",
+            "Stage11-Infrast_FactoryAssign_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryAssign_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "확인버튼을터치하면끝" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [1131, 659, 94, 36],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryAssign"],
+        "next": ["Stage11-Infrast_FactoryOutput"]
+    },
+
+    "Stage11-Infrast_FactoryOutput": {
+        "focus": "제조소 · 제조 항목",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryFormula_Exit",
+            "Stage11-Infrast_FactoryOutput_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryOutput_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "제조하려는항목을설정" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [1059, 275, 128, 112],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryOutput"],
+        "next": ["Stage11-Infrast_FactoryFormula"]
+    },
+
+    "Stage11-Infrast_FactoryFormula": {
+        "focus": "제조소 · 제조 제품",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_FactoryConfirm_Exit",
+            "Stage11-Infrast_FactoryFormula_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryFormula_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "제조를시작할제품을선" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [316, 119, 345, 113],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryFormula"],
+        "next": ["Stage11-Infrast_FactoryConfirm"]
+    },
+
+    "Stage11-Infrast_FactoryConfirm": {
+        "focus": "제조소 · 제조 결정",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_TradeSlot_Exit",
+            "Stage11-Infrast_FactoryConfirm_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_FactoryConfirm_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "터치해서결정하도록해" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [919, 564, 67, 64],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_FactoryConfirm"],
+        "next": ["Stage11-Infrast_TradeSlot"]
+    },
+
+    "Stage11-Infrast_TradeSlot": {
+        "focus": "무역소 · 오퍼레이터 배치",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_TradeOperator_Exit",
+            "Stage11-Infrast_TradeSlot_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_TradeSlot_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Stage11-Infrast_FactorySlot_Exit"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [288, 611, 73, 71],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_TradeSlot"],
+        "next": ["Stage11-Infrast_TradeOperator"]
+    },
+
+    "Stage11-Infrast_TradeOperator": {
+        "focus": "무역소 · 오퍼레이터 선택",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_TradeAssign_Exit",
+            "Stage11-Infrast_TradeOperator_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_TradeOperator_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Stage11-Infrast_FactoryOperator_Exit"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [444, 147, 76, 151],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_TradeOperator"],
+        "next": ["Stage11-Infrast_TradeAssign"]
+    },
+
+    "Stage11-Infrast_TradeAssign": {
+        "focus": "무역소 · 배치 확인",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage11-Infrast_TradeOrder_Exit",
+            "Stage11-Infrast_TradeAssign_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage11-Infrast_TradeAssign_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Stage11-Infrast_FactoryAssign_Exit"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [1131, 659, 94, 36],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_TradeAssign"],
+        "next": ["Stage11-Infrast_TradeOrder"]
+    },
+
+    "Stage11-Infrast_TradeOrder": {
+        "focus": "첫 오더",
+        "next": ["[JumpBack]Loading", "Stage11-Infrast_TradeOrder_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage11-Infrast_TradeOrder_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "이곳을터치해서납품을" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [300, 204, 152, 291],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_TradeOrder_Exit", "Stage11-Infrast_ToHome"],
+        "next": ["Stage11-Infrast_ToHome"]
+    },
+
+    "Stage11-Infrast_ToHome": {
+        "focus": "메인 이동",
+        "next": ["Stage11-Infrast_ToHome_Exit"]
+    },
+    "Stage11-Infrast_ToHome_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Home",
+                    "handle": ["EarnReward", "ClosePopup", "InfrastLeave", "DialogNext"]
+                }
+            }
+        },
+        "on_error": ["Stage11-Infrast_ToHome"],
+        "next": ["Reward-Event"]
+    },
+    "InfrastLeave": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [383, 278, 512, 51],
+                "expected": ["로도스아일랜드", "기반시설"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [805, 467, 79, 60]
+            }
+        }
+    },
+
+    "Stage11-Infrast_Room_Exit_Confirm": {
+        "doc": "호출 루프가 anchor BuildingConfirmNext로 확인 뒤 루프, BuildingConfirmRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "확인버튼을" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [844, 517, 227, 63],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["[Anchor]BuildingConfirmRetry"],
+        "next": ["[Anchor]BuildingConfirmNext"]
+    },
+    "Stage11-Infrast_Room_Exit_Build": {
+        "doc": "호출 루프가 anchor BuildingConfirmNext로 확인 뒤 루프, BuildingConfirmRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "확인버튼을터치해서" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 500,
+                    "click": [882, 554, 140, 58],
+                    "pre_click": true
+                }
+            }
+        },
+        "on_error": ["[Anchor]BuildingConfirmRetry"],
+        "next": ["[Anchor]BuildingConfirmNext"]
+    }
+}

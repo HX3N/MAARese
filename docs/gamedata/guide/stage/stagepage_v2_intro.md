@@ -1,0 +1,4 @@
+# guide/stage/stagepage_v2_intro
+trigger: CUSTOM_OPERATION stagepage_intro
+
+1. [PRTS] 어서오십시오, 박사님. 이곳에선 각 스토리와 이벤트 섹션에 연결할 수 있습니다. 우측 하단에 밝게 표시된 구역에서 지난번 진행했던 작전 스테이지로 돌아갈 수 있습니다. 필요하신 경우, 터치하여 이동하여 주십시오. — anim=Highlight

@@ -1,0 +1,369 @@
+{
+    "interface_version": 2,
+    "name": "MAARese",
+    "title": "MAARese",
+    "version": "0.0.0",
+    "github": "https://github.com/HX3N/MAARese",
+    "controller": [
+        {
+            "name": "MuMuPlayer",
+            "type": "Adb",
+            "display_short_side": 720
+        }
+    ],
+    "resource": [
+        {
+            "name": "YoStarKR (한국)",
+            "path": ["{PROJECT_DIR}/resource"]
+        }
+    ],
+    "agent": {
+        "child_exec": "{PROJECT_DIR}/python/python.exe",
+        "child_args": ["{PROJECT_DIR}/agent/main.py"]
+    },
+    "task": [
+        {
+            "name": "리세 시작",
+            "entry": "Account_Entry",
+            "default_check": true,
+            "description": "**MuMu Player (Android 12)** 또는 **Root 권한 활성화된 에뮬레이터** 권장\n\n**1280×720 240 DPI** · **Root 권한 활성화** · **램 4GB 이상**\n\n자세한 사용법은 [README](https://github.com/HX3N/MAARese#readme)를 읽어 주세요.",
+            "option": [
+                "리세 전략",
+                "계정 이름",
+                "헤드헌팅 배너",
+                "기록 조건",
+                "타임아웃",
+                "반복 횟수",
+                "Debug"
+            ]
+        },
+        {
+            "name": "계정 관리",
+            "entry": "Account_Task",
+            "default_check": false,
+            "description": "기록된 게스트 계정을 불러오거나, 현재 계정을 수동으로 기록합니다.\n\n기록한 게스트 계정 및 스크린샷은 `accounts/` 아래에 기록됩니다.",
+            "option": ["작업 방식"]
+        }
+    ],
+    "option": {
+        "리세 전략": {
+            "type": "select",
+            "description": "스테이지를 많이 깰수록 오래 걸리지만 헤드헌팅 횟수가 늘어납니다.",
+            "default_case": "0-1",
+            "cases": [
+                {
+                    "name": "0-1",
+                    "description": "0-1 퇴각 후 헤드헌팅을 진행합니다.\n\n`6+1회 · 7분 이내`",
+                    "pipeline_override": {
+                        "Newbie_Branch_Exit_Mail": { "enabled": true },
+                        "Newbie_Branch_Exit_Stage01": { "enabled": false },
+                        "Reward-Mail_Finish_Exit_Headhunting": { "enabled": true },
+                        "Reward-Mail_Finish_Exit_Mission": { "enabled": false }
+                    }
+                },
+                {
+                    "name": "0-1 연장",
+                    "description": "0-1 퇴각 후 헤드헌팅\n\n6성이 **진행 조건** 이상이면 0-11 클리어 후 한 번 더 헤드헌팅",
+                    "option": ["진행 조건"],
+                    "pipeline_override": {
+                        "Newbie_Branch_Exit_Mail": { "enabled": true },
+                        "Newbie_Branch_Exit_Stage01": { "enabled": false },
+                        "Reward-Mail_Finish_Exit_Headhunting": { "enabled": true },
+                        "Reward-Mail_Finish_Exit_Mission": { "enabled": false },
+                        "Gacha_Scan_Active": { "enabled": true },
+                        "Reward-Event_Finish_Exit_Mail": { "enabled": false },
+                        "Reward-Event_Finish_Exit_Mission": { "enabled": true }
+                    }
+                },
+                {
+                    "name": "0-11",
+                    "description": "0-11 클리어 후 헤드헌팅을 진행합니다.\n\n`24+1회 · 40분 이내`",
+                    "pipeline_override": {
+                        "Newbie_Branch_Exit_Mail": { "enabled": false },
+                        "Newbie_Branch_Exit_Stage01": { "enabled": true },
+                        "Reward-Mail_Finish_Exit_Headhunting": { "enabled": false },
+                        "Reward-Mail_Finish_Exit_Mission": { "enabled": true },
+                        "Reward-Event_Finish_Exit_Mail": { "enabled": true },
+                        "Reward-Event_Finish_Exit_Mission": { "enabled": false }
+                    }
+                }
+            ]
+        },
+        "헤드헌팅 배너": {
+            "type": "select",
+            "description": "헤드헌팅 화면에서 어떤 배너를 뽑을지 고릅니다.\n\n`기본값: 한정`",
+            "default_case": "한정",
+            "cases": [
+                {
+                    "name": "한정",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "banner": "한정" } } }
+                        }
+                    }
+                },
+                {
+                    "name": "통상",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "banner": "통상" } } }
+                        }
+                    }
+                },
+                {
+                    "name": "초보자",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "banner": "초보자" } } }
+                        }
+                    }
+                }
+            ]
+        },
+        "기록 조건": {
+            "type": "select",
+            "description": "헤드헌팅 후 6성이 N개 이상이면 계정을 기록합니다.\n\n`제한 없음`은 6성이 없어도 모든 계정을 기록합니다.\n\n`기본값: 6성 1개 이상`",
+            "default_case": "6성 1개 이상",
+            "cases": [
+                {
+                    "name": "6성 1개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Run": {
+                            "action": { "param": { "custom_action_param": { "min_six": 1 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "6성 2개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Run": {
+                            "action": { "param": { "custom_action_param": { "min_six": 2 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "6성 3개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Run": {
+                            "action": { "param": { "custom_action_param": { "min_six": 3 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "제한 없음 (비권장)",
+                    "pipeline_override": {
+                        "Gacha_Scan_Run": {
+                            "action": { "param": { "custom_action_param": { "min_six": 0 } } }
+                        }
+                    }
+                }
+            ]
+        },
+        "진행 조건": {
+            "type": "select",
+            "description": "0-1 연장에서 헤드헌팅 후 6성이 N개 이상이면 0-11 까지 연장합니다.\n\n`기본값: 6성 1개 이상`",
+            "default_case": "6성 1개 이상",
+            "cases": [
+                {
+                    "name": "6성 1개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Active": { "attach": { "continue_min_six": 1 } }
+                    }
+                },
+                {
+                    "name": "6성 2개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Active": { "attach": { "continue_min_six": 2 } }
+                    }
+                },
+                {
+                    "name": "6성 3개 이상",
+                    "pipeline_override": {
+                        "Gacha_Scan_Active": { "attach": { "continue_min_six": 3 } }
+                    }
+                }
+            ]
+        },
+        "반복 횟수": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "runs",
+                    "label": "반복 횟수",
+                    "description": "리세를 몇 번 반복할지 정합니다.\n\n`기본값: 0 (무제한)`",
+                    "default": "0",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "숫자 입력"
+                }
+            ],
+            "pipeline_override": {
+                "Gacha_Scan_Detail": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_runs": "{runs}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "타임아웃": {
+            "type": "select",
+            "description": "특정 작업에서 N분 동안 진행이 멈추면 전체 작업을 처음부터 다시 시작합니다.\n\n`기본값: 3분`",
+            "default_case": "3분",
+            "cases": [
+                {
+                    "name": "3분",
+                    "pipeline_override": {
+                        "GameDownReset": { "attach": { "loop_limit_min": 3 } }
+                    }
+                },
+                {
+                    "name": "5분",
+                    "pipeline_override": {
+                        "GameDownReset": { "attach": { "loop_limit_min": 5 } }
+                    }
+                },
+                {
+                    "name": "10분",
+                    "pipeline_override": {
+                        "GameDownReset": { "attach": { "loop_limit_min": 10 } }
+                    }
+                }
+            ]
+        },
+        "계정 이름": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "name",
+                    "label": "계정 이름",
+                    "description": "한글·영어 8자 이내이며 특수문자는 쓸 수 없습니다.",
+                    "default": "Arknights",
+                    "pipeline_type": "string",
+                    "verify": "^.+$",
+                    "pattern_msg": "계정 이름 입력"
+                }
+            ],
+            "pipeline_override": {
+                "Account_Login_Input": {
+                    "action": {
+                        "param": {
+                            "input_text": "{name}"
+                        }
+                    }
+                }
+            }
+        },
+        "Debug": {
+            "type": "switch",
+            "description": "개발용 기능입니다.\n\n사용법을 모르면 켜지 마세요.\n\n`기본값: 비활성화`",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": ["시작 노드", "연장 · 진행 조건"]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "시작 노드": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "node",
+                    "label": "시작 노드",
+                    "description": "실행을 시작할 파이프라인 노드 이름입니다. `예시: Stage04`\n\n비워 두면 처음부터 시작합니다.",
+                    "default": "",
+                    "pipeline_type": "string",
+                    "verify": "^[\\w-]*$",
+                    "pattern_msg": "노드 이름 입력"
+                }
+            ],
+            "pipeline_override": {
+                "Account_Entry": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "node": "{node}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "연장 · 진행 조건": {
+            "type": "switch",
+            "description": "0-1 연장에서 6성이 없어도 0-11 클리어까지 이어 갑니다.\n\n`기본값: 비활성화`",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "Gacha_Scan_Active": { "attach": { "continue_min_six": 0 } }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "작업 방식": {
+            "type": "select",
+            "default_case": "불러오기",
+            "cases": [
+                {
+                    "name": "불러오기",
+                    "description": "리세 시작으로 기록한 계정을 불러옵니다.\n\n`기본값: 빈칸`",
+                    "option": ["불러올 계정"],
+                    "pipeline_override": {
+                        "Account_Launch_Exit": {
+                            "next": ["Account_LoadSync"]
+                        }
+                    }
+                },
+                {
+                    "name": "기록하기",
+                    "description": "오퍼레이터 목록 화면에서 실행하세요.\n\n6성 인식을 한 뒤 `accounts`에 기록합니다.",
+                    "pipeline_override": {
+                        "Account_Task": {
+                            "next": ["Gacha_Rarity"]
+                        },
+                        "Gacha_Scan_Run": {
+                            "next": []
+                        }
+                    }
+                }
+            ]
+        },
+        "불러올 계정": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "account",
+                    "label": "불러올 계정",
+                    "description": "스크린샷 파일 이름 앞의 시간을 입력하세요. `예시: 20261010-000000`\n\n비워 두면 이 인스턴스에서 가장 최근에 기록한 계정을 불러옵니다.",
+                    "default": "",
+                    "pipeline_type": "string",
+                    "verify": "^(latest|\\d{8}-\\d{6})?$",
+                    "pattern_msg": "00000000-000000"
+                }
+            ],
+            "pipeline_override": {
+                "Account_Load": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "account": "{account}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

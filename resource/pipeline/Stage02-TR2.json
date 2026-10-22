@@ -1,0 +1,129 @@
+{
+    "Stage02-TR2": {
+        "focus": "[color:#4FA3FF]▶ TR-2[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "next": ["Stage02-TR2_StageSelect"]
+    },
+
+    "Stage02-TR2_StageSelect": {
+        "focus": "스테이지 선택",
+        "next": ["Stage02-TR2_StageSelect_Exit"]
+    },
+    "Stage02-TR2_StageSelect_Exit": {
+        "doc": "스테이지 선택",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectStage",
+                "custom_action_param": { "stage": "TR-2" }
+            }
+        },
+        "on_error": ["Stage02-TR2_StageSelect"],
+        "anchor": { "BattleEnterNext": "Stage02-TR2_Guide" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage02-TR2_Guide": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage02-TR2_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "BattleResult",
+            "[JumpBack]Stage02-TR2_Guide_Adnachiel_Direction",
+            "[JumpBack]Stage02-TR2_Guide_Adnachiel",
+            "[JumpBack]Stage02-TR2_Guide_Rangers_Close",
+            "[JumpBack]Stage02-TR2_Guide_Rangers",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress",
+            "[JumpBack]BattleWait_Tap"
+        ]
+    },
+    "Stage02-TR2_Guide_Rangers": {
+        "doc": "미리 배치된 레인저 정보를 열게 하는 튜토리얼 안내",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "레인저를터치하여정보" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [685, 249, 20, 20], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage02-TR2_Guide"]
+    },
+    "Stage02-TR2_Guide_Rangers_Close": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "비어있는공간을터치하" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [1045, 500, 1, 1], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage02-TR2_Guide"]
+    },
+    "Stage02-TR2_Guide_Adnachiel": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "스나이퍼오퍼레이터아" }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [1220, 660],
+                "end": [901, 437],
+                "duration": 300,
+                "end_hold": 100
+            }
+        },
+        "post_delay": 1000
+    },
+    "Stage02-TR2_Guide_Adnachiel_Direction": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "그리고위쪽으로드래그" }
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [901, 437],
+                "end": [901, 437],
+                "end_offset": [0, -400, 0, 0],
+                "duration": 150
+            }
+        },
+        "post_delay": 1000
+    },
+
+    "Stage02-TR2_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage03"]
+    }
+}

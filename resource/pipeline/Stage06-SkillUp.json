@@ -1,0 +1,90 @@
+{
+    "Stage06-SkillUp": {
+        "focus": "[color:#4FA3FF]▶ 스킬업[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogPRTS.png"]
+                }
+            }
+        },
+        "next": ["Stage06-SkillUp_Pick"]
+    },
+
+    "Stage06-SkillUp_Pick": {
+        "focus": "당나귀 선택",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage06-SkillUp_Skill_Exit",
+            "Stage06-SkillUp_Pick_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage06-SkillUp_Pick_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["FirstOperatorGuide"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 1000 }
+            }
+        },
+        "on_error": ["Stage06-SkillUp_Pick"],
+        "next": ["Stage06-SkillUp_Skill"]
+    },
+
+    "Stage06-SkillUp_Skill": {
+        "focus": "스킬 육성",
+        "next": ["[JumpBack]Loading", "Stage06-SkillUp_Skill_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage06-SkillUp_Skill_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "터치하시면스킬랭크업" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [1165, 360, 62, 60], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage06-SkillUp_Skill_Exit", "Stage06-SkillUp_Move"],
+        "next": ["Stage06-SkillUp_Move"]
+    },
+
+    "Stage06-SkillUp_Move": {
+        "focus": "작전 이동",
+        "next": ["Stage06-SkillUp_Move_Exit"]
+    },
+    "Stage06-SkillUp_Move_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Operation",
+                    "handle": ["EarnReward", "ClosePopup", "DialogNext"]
+                }
+            }
+        },
+        "anchor": { "LastStageNext": "Stage06-SkillUp_LastStage" },
+        "on_error": ["Stage06-SkillUp_Move"],
+        "next": ["OperationLastStage"]
+    },
+
+    "Stage06-SkillUp_LastStage": {
+        "anchor": { "LastStageNext": "" },
+        "next": ["Stage06-TR5"]
+    }
+}

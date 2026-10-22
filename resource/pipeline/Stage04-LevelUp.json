@@ -1,0 +1,90 @@
+{
+    "Stage04-LevelUp": {
+        "focus": "[color:#4FA3FF]▶ 레벨업[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDonkey.png", "Public/DialogPRTS.png"]
+                }
+            }
+        },
+        "next": ["Stage04-LevelUp_Pick"]
+    },
+
+    "Stage04-LevelUp_Pick": {
+        "focus": "당나귀 선택",
+        "next": [
+            "[JumpBack]Loading",
+            "Stage04-LevelUp_Level_Exit",
+            "Stage04-LevelUp_Pick_Exit",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Stage04-LevelUp_Pick_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["FirstOperatorGuide"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 1000 }
+            }
+        },
+        "on_error": ["Stage04-LevelUp_Pick"],
+        "next": ["Stage04-LevelUp_Level"]
+    },
+
+    "Stage04-LevelUp_Level": {
+        "focus": "레벨 육성",
+        "next": ["[JumpBack]Loading", "Stage04-LevelUp_Level_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage04-LevelUp_Level_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "앞으로의작전성공률을" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [890, 107, 342, 84], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage04-LevelUp_Level_Exit", "Stage04-LevelUp_Move"],
+        "next": ["Stage04-LevelUp_Move"]
+    },
+
+    "Stage04-LevelUp_Move": {
+        "focus": "작전 이동",
+        "next": ["Stage04-LevelUp_Move_Exit"]
+    },
+    "Stage04-LevelUp_Move_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Operation",
+                    "handle": ["EarnReward", "ClosePopup", "DialogNext"]
+                }
+            }
+        },
+        "anchor": { "LastStageNext": "Stage04-LevelUp_LastStage" },
+        "on_error": ["Stage04-LevelUp_Move"],
+        "next": ["OperationLastStage"]
+    },
+
+    "Stage04-LevelUp_LastStage": {
+        "anchor": { "LastStageNext": "" },
+        "next": ["Stage04-TR4"]
+    }
+}
