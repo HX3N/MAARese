@@ -1,0 +1,63 @@
+{
+    "Stage02-Recruit": {
+        "focus": "[color:#4FA3FF]▶ 공개모집[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDonkey.png", "Public/DialogPRTS.png"]
+                }
+            }
+        },
+        "next": ["Stage02-Recruit_Start"]
+    },
+
+    "Stage02-Recruit_Start": {
+        "focus": "모집 개시",
+        "next": ["[JumpBack]Loading", "Stage02-Recruit_Start_Exit", "[JumpBack]DialogNext"]
+    },
+    "Stage02-Recruit_Start_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "모집공고는이곳을터치" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [259, 246, 143, 127], "pre_click": true }
+            }
+        },
+        "on_error": ["Stage02-Recruit_Start_Exit", "Stage02-Recruit_Operation"],
+        "next": ["Stage02-Recruit_Operation"]
+    },
+
+    "Stage02-Recruit_Operation": {
+        "focus": "작전 이동",
+        "next": ["Stage02-Recruit_Operation_Exit"]
+    },
+    "Stage02-Recruit_Operation_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": {
+                    "dest": "Operation",
+                    "handle": ["EarnReward", "ClosePopup", "DialogNext"]
+                }
+            }
+        },
+        "anchor": { "LastStageNext": "Stage02-Recruit_LastStage" },
+        "on_error": ["Stage02-Recruit_Operation"],
+        "next": ["OperationLastStage"]
+    },
+
+    "Stage02-Recruit_LastStage": {
+        "anchor": { "LastStageNext": "" },
+        "next": ["Stage02-TR2"]
+    }
+}

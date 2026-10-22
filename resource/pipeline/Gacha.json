@@ -1,0 +1,415 @@
+{
+    "Gacha": {
+        "focus": "[color:#4FA3FF]▶ 헤드헌팅[/color]",
+        "next": ["[JumpBack]Loading", "Gacha_Exit"]
+    },
+    "Gacha_Exit": {
+        "doc": "banner = interface 헤드헌팅 배너",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectBanner",
+                "custom_action_param": { "banner": "한정" }
+            }
+        },
+        "on_error": ["Gacha"],
+        "next": ["Gacha_PullTen"]
+    },
+    "Gacha_Banner_Right": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [1223, 357, 50, 73]
+            }
+        }
+    },
+    "Gacha_Banner_Left": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [7, 357, 50, 73]
+            }
+        }
+    },
+    "Gacha_Banner_Recruit": {
+        "doc": "공개모집 탭 인식용",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [100, 110, 170, 50],
+                "expected": "공개모집"
+            }
+        }
+    },
+    "Gacha_Banner_Newbie": {
+        "doc": "초보자 배너 인식용",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1059, 588, 145, 36],
+                "expected": "3800",
+                "model": "en_us"
+            }
+        }
+    },
+    "Gacha_Banner_Limited": {
+        "doc": "한정 배너 인식용. 배너가 바뀌면 roi 안의 배너 그림을 잘라 LimitedBanner.png를 교체",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "type": "TemplateMatch",
+                        "param": {
+                            "template": "LimitedBanner.png",
+                            "roi": [440, 130, 400, 350]
+                        }
+                    },
+                    {
+                        "type": "OCR",
+                        "param": {
+                            "roi": [815, 625, 170, 45],
+                            "expected": "보너스"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+
+    "Gacha_PullTen": {
+        "focus": "10회 뽑기",
+        "anchor": { "GachaFail": "Gacha_PullOne", "GachaPullRetry": "Gacha_PullTen" },
+        "next": [
+            "[JumpBack]Loading",
+            "Gacha_Pull_Exit",
+            "[JumpBack]Gacha_Pull_Skip",
+            "[JumpBack]Gacha_Pull_Bonus",
+            "[JumpBack]Gacha_Pull_Exchange",
+            "[JumpBack]Gacha_Pull_Confirm",
+            "[JumpBack]Gacha_PullTen_Click",
+            "[JumpBack]EarnReward"
+        ]
+    },
+    "Gacha_PullTen_Click": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1000, 620, 200, 60],
+                "expected": "진행"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 3000,
+                    "until": [
+                        "Gacha_Pull_Exchange",
+                        "Gacha_Pull_Confirm",
+                        "Gacha_Pull_Bonus",
+                        "Gacha_Pull_Exit",
+                        "Gacha_Pull_Skip"
+                    ]
+                }
+            }
+        },
+        "on_error": ["Gacha_PullTen"]
+    },
+
+    "Gacha_PullOne": {
+        "focus": "1회 뽑기",
+        "anchor": { "GachaFail": "Gacha_OperatorOpen", "GachaPullRetry": "Gacha_PullOne" },
+        "next": [
+            "[JumpBack]Loading",
+            "Gacha_Pull_Exit",
+            "[JumpBack]Gacha_Pull_Skip",
+            "[JumpBack]Gacha_Pull_Bonus",
+            "[JumpBack]Gacha_Pull_Exchange",
+            "[JumpBack]Gacha_Pull_Confirm",
+            "[JumpBack]Gacha_PullOne_Click"
+        ]
+    },
+    "Gacha_PullOne_Click": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [800, 620, 200, 60],
+                "expected": ["보너스", "진행"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 3000,
+                    "until": [
+                        "Gacha_Pull_Exchange",
+                        "Gacha_Pull_Confirm",
+                        "Gacha_Pull_Bonus",
+                        "Gacha_Pull_Exit",
+                        "Gacha_Pull_Skip"
+                    ]
+                }
+            }
+        },
+        "on_error": ["Gacha_PullOne"]
+    },
+
+    "Gacha_Pull_Bonus": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [301, 288, 674, 71],
+                "expected": ["보너스", "찬스"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [752, 467, 280, 59]
+            }
+        }
+    },
+    "Gacha_Pull_Exchange": {
+        "doc": "호출 루프가 anchor GachaPullRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Gacha/GachaExchange.png",
+                "roi": [545, 19, 205, 163],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [930, 496, 62, 42]
+                }
+            }
+        },
+        "on_error": ["[Anchor]GachaPullRetry"]
+    },
+    "Gacha_Pull_Confirm": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [0, 380, 1280, 90],
+                "expected": ["오퍼레이터", "모집하시"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [879, 431, 189, 157]
+            }
+        }
+    },
+    "Gacha_Pull_Exit": {
+        "doc": "순오리지늄 부족이면 취소하고 한 단계 아래 뽑기로. 호출 루프가 anchor GachaPullRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Gacha/GachaLack.png",
+                "roi": [537, 78, 215, 182],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "wait_ms": 1000,
+                    "click": [252, 453, 89, 57]
+                }
+            }
+        },
+        "on_error": ["[Anchor]GachaPullRetry"],
+        "next": ["[Anchor]GachaFail"]
+    },
+    "Gacha_Pull_Skip": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["GachaSkip"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Gacha_Pull_Spam"]
+    },
+    "Gacha_Pull_Spam": {
+        "doc": "배너 화면(내비게이션 버튼)이 나올 때까지 중앙 연타",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [440, 260, 400, 200]
+            }
+        },
+        "next": ["Gacha_Pull_Spam_Done", "Gacha_Pull_Spam"]
+    },
+    "Gacha_Pull_Spam_Done": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OpenNavigation"]
+            }
+        }
+    },
+
+    "Gacha_OperatorOpen": {
+        "focus": "6성 식별 준비",
+        "anchor": { "GachaFail": "", "GachaPullRetry": "" },
+        "next": ["Gacha_OperatorOpen_Exit"]
+    },
+    "Gacha_OperatorOpen_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Operator" }
+            }
+        },
+        "on_error": ["Gacha_OperatorOpen"],
+        "next": ["Gacha_Rarity"]
+    },
+
+    "Gacha_Rarity": {
+        "next": ["Gacha_Rarity_Exit"]
+    },
+    "Gacha_Rarity_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [921, 14, 104, 52],
+                "expected": "레어도"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1000,
+        "next": ["Gacha_Return"]
+    },
+
+    "Gacha_Return": {
+        "next": [
+            "[JumpBack]Loading",
+            "Gacha_Return_Exit",
+            "[JumpBack]VoiceResourceLater",
+            "[JumpBack]Gacha_Return_Back"
+        ]
+    },
+    "Gacha_Return_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Home"]
+            }
+        },
+        "next": ["Gacha_Reopen"]
+    },
+    "Gacha_Return_Back": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["OpenNavigation"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [20, 20, 140, 40]
+            }
+        },
+        "post_delay": 1500
+    },
+
+    "Gacha_Reopen": {
+        "next": ["Gacha_Reopen_Exit"]
+    },
+    "Gacha_Reopen_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Operator", "direct": true }
+            }
+        },
+        "on_error": ["Gacha_Reopen"],
+        "next": ["Gacha_Scan"]
+    },
+
+    "Gacha_Scan": {
+        "focus": "6성 식별 시작",
+        "next": ["Gacha_Scan_Rarity"]
+    },
+    "Gacha_Scan_Rarity": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Gacha_Rarity_Exit"]
+            }
+        },
+        "next": ["Gacha_Scan_Run"]
+    },
+    "Gacha_Scan_Run": {
+        "doc": "min_six = interface 기록 조건 (6성 개수)",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GachaOperatorScan",
+                "custom_action_param": { "min_six": 0 }
+            }
+        },
+        "next": ["Gacha_Scan_Result"]
+    },
+    "Gacha_Scan_Result": {
+        "doc": "GachaOperatorScan이 focus에 회차·시간·헤드헌팅·6성 수 요약 줄 기록",
+        "next": ["Gacha_Scan_Detail"]
+    },
+    "Gacha_Scan_Detail": {
+        "doc": "GachaOperatorScan이 focus에 6성 이름·기록 여부 줄 기록. next는 GachaOperatorScan이 판독마다 정함. max_runs = interface 반복 횟수 (0이면 무제한)",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RunLimit",
+                "custom_action_param": { "max_runs": 0 }
+            }
+        },
+        "next": ["Account"]
+    },
+    "Gacha_Scan_Active": {
+        "doc": "GachaOperatorScan이 이어 가기로 정하면 Gacha_Scan_Detail 다음 노드. continue_min_six = interface 진행 조건",
+        "focus": "[color:#FF8C00]◆ 분기점 · 0-1 (0-1 연장)[/color]",
+        "enabled": false,
+        "attach": { "continue_min_six": 1 },
+        "next": ["Stage01"]
+    },
+    "Gacha_SixStar": {
+        "doc": "GachaOperatorScan이 roi를 바꿔 가며 실행하는 6성 별 인식",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Gacha/GachaSixStar.png",
+                "roi": [23, 85, 625, 35],
+                "green_mask": true
+            }
+        }
+    },
+    "Gacha_OperatorName": {
+        "doc": "GachaOperatorScan이 roi를 바꿔 가며 실행하는 이름 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [23, 349, 625, 29]
+            }
+        }
+    }
+}

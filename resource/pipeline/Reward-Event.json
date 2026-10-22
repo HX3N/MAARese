@@ -1,0 +1,404 @@
+{
+    "Reward-Event": {
+        "focus": "[color:#4FA3FF]▶ 한정 이벤트[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ResetEventSlot"
+            }
+        },
+        "next": ["Reward-Event_Slot"]
+    },
+    "EventSlotCheck": {
+        "doc": "OpenEventSlot이 칸 roi로 바꿔 실행하는 로그인형 이벤트 칸 아이콘(체크)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Reward-Event/ActivitySpecialLogin.png",
+                "roi": [0, 68, 60, 55],
+                "green_mask": true
+            }
+        }
+    },
+    "EventSlotCard": {
+        "doc": "OpenEventSlot이 칸 roi로 바꿔 실행하는 행운 티켓형 이벤트 칸 아이콘(카드)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Reward-Event/ActivityOrundum.png",
+                "roi": [0, 68, 60, 55],
+                "green_mask": true
+            }
+        }
+    },
+
+    "Reward-Event_Slot": {
+        "focus": "이벤트 보상 확인",
+        "next": ["Reward-Event_Slot_Exit", "Reward-Event_Slot_Home"]
+    },
+    "Reward-Event_Slot_Home": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Home" }
+            }
+        },
+        "on_error": ["Reward-Event_Slot"],
+        "next": ["Reward-Event_Slot_Exit"]
+    },
+    "Reward-Event_Slot_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Home"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "OpenEventSlot",
+                "custom_action_param": {
+                    "rois": [
+                        [0, 68, 60, 55],
+                        [0, 123, 60, 54],
+                        [0, 177, 60, 54]
+                    ],
+                    "branches": {
+                        "EventSlotCheck": "Reward-Event_Popup",
+                        "EventSlotCard": "Reward-Event_TicketPick"
+                    },
+                    "done": "Reward-Event_Finish"
+                }
+            }
+        },
+        "on_error": ["Reward-Event_Slot"],
+        "next": ["Reward-Event_Finish"]
+    },
+
+    "Reward-Event_Popup": {
+        "focus": "이벤트 팝업 구분",
+        "timeout": 10000,
+        "on_error": ["Reward-Event_Popup_Exit_Unknown", "Reward-Event_Slot"],
+        "next": ["Reward-Event_Popup_Exit_Monthly", "Reward-Event_Popup_Exit_Attend"]
+    },
+    "Reward-Event_Popup_Exit_Monthly": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Reward-Event/SpecialAccess.png",
+                "roi": [220, 147, 510, 163]
+            }
+        },
+        "next": ["Reward-Event_MonthlyClaim"]
+    },
+    "Reward-Event_Popup_Exit_Attend": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [559, 367, 58, 81],
+                    "until": ["EarnReward"]
+                }
+            }
+        },
+        "on_error": ["Reward-Event_Popup_Exit_Attend", "Reward-Event_LoginReward"],
+        "next": ["Reward-Event_LoginReward"]
+    },
+    "Reward-Event_Popup_Exit_Unknown": {
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 모르는 이벤트, 스킵[/color]",
+                "display": ["log"]
+            }
+        },
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Home"]
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        },
+        "next": ["Reward-Event_Slot"]
+    },
+
+    "Reward-Event_MonthlyClaim": {
+        "focus": "먼슬리카드 수령",
+        "next": ["Reward-Event_MonthlyReward_Exit", "Reward-Event_MonthlyClaim_Exit"]
+    },
+    "Reward-Event_MonthlyClaim_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [952, 489, 119, 46],
+                "expected": "수령하기"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Reward-Event_MonthlyClaim"],
+        "next": ["Reward-Event_MonthlyReward"]
+    },
+
+    "Reward-Event_MonthlyReward": {
+        "focus": "먼슬리카드 보상",
+        "next": [
+            "[JumpBack]Loading",
+            "Reward-Event_MonthlyReward_Exit",
+            "[JumpBack]Reward-Event_MonthlyReward_Retry"
+        ]
+    },
+    "Reward-Event_MonthlyReward_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["EarnReward"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [605, 605, 70, 70]
+            }
+        },
+        "next": ["Reward-Event_MonthlyClose"]
+    },
+    "Reward-Event_MonthlyReward_Retry": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Reward-Event_MonthlyClaim_Exit"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Reward-Event_MonthlyReward"]
+    },
+
+    "Reward-Event_MonthlyClose": {
+        "focus": "스페셜 먼슬리카드 닫기",
+        "next": ["[JumpBack]Loading", "[JumpBack]EarnReward", "Reward-Event_MonthlyClose_Exit"]
+    },
+    "Reward-Event_MonthlyClose_Exit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [941, 490, 139, 46],
+                "expected": "수령완료"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [1055, 140, 34, 31], "pre_click": true }
+            }
+        },
+        "on_error": ["Reward-Event_MonthlyClose_Exit", "Reward-Event_Slot"],
+        "next": ["Reward-Event_Slot"]
+    },
+
+    "Reward-Event_LoginReward": {
+        "focus": "로그인 보상",
+        "next": [
+            "[JumpBack]Loading",
+            "Reward-Event_LoginReward_Exit",
+            "[JumpBack]Reward-Event_LoginReward_Retry"
+        ]
+    },
+    "Reward-Event_LoginReward_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["EarnReward"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [605, 605, 70, 70]
+            }
+        },
+        "next": ["Reward-Event_RewardClose"]
+    },
+    "Reward-Event_LoginReward_Retry": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [559, 367, 58, 81],
+                    "until": ["EarnReward"]
+                }
+            }
+        },
+        "on_error": ["Reward-Event_LoginReward"]
+    },
+
+    "Reward-Event_RewardClose": {
+        "focus": "보상 수령",
+        "next": ["[JumpBack]Loading", "[JumpBack]EarnReward", "Reward-Event_RewardClose_Exit"]
+    },
+    "Reward-Event_RewardClose_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry"
+            }
+        },
+        "on_error": ["Reward-Event_RewardClose_Exit", "Reward-Event_Slot"],
+        "next": ["Reward-Event_Slot"]
+    },
+
+    "Reward-Event_TicketPick": {
+        "focus": "행운 티켓 선택",
+        "next": ["Reward-Event_TicketPick_First"]
+    },
+    "Reward-Event_TicketPick_First": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [957, 293, 34, 36]
+            }
+        },
+        "post_delay": 500,
+        "next": ["Reward-Event_TicketPick_Second"]
+    },
+    "Reward-Event_TicketPick_Second": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [1029, 363, 34, 35]
+            }
+        },
+        "post_delay": 500,
+        "next": ["Reward-Event_TicketPick_Exit"]
+    },
+    "Reward-Event_TicketPick_Exit": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [884, 362, 34, 35]
+            }
+        },
+        "post_delay": 500,
+        "next": ["Reward-Event_TicketReward"]
+    },
+
+    "Reward-Event_TicketReward": {
+        "focus": "행운 티켓 보상",
+        "next": [
+            "[JumpBack]Loading",
+            "Reward-Event_TicketReward_Exit",
+            "[JumpBack]Reward-Event_TicketReward_Retry"
+        ]
+    },
+    "Reward-Event_TicketReward_Exit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["EarnReward"]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [605, 605, 70, 70]
+            }
+        },
+        "next": ["Reward-Event_RewardClose"]
+    },
+    "Reward-Event_TicketReward_Retry": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["ClosePopup"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": {
+                    "click": [1076, 524, 74, 39],
+                    "until": ["EarnReward"]
+                }
+            }
+        },
+        "on_error": ["Reward-Event_TicketReward"]
+    },
+
+    "Reward-Event_Finish": {
+        "focus": "메인 이동",
+        "next": ["Reward-Event_Finish_Home", "Reward-Event_Finish_Navigate"]
+    },
+    "Reward-Event_Finish_Home": {
+        "doc": "리세 전략에 따라 탈출구 노드 하나만 활성화 (0-11 Reward-Event_Finish_Exit_Mail, 0-1 연장 Reward-Event_Finish_Exit_Mission)",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Home"]
+            }
+        },
+        "next": ["Reward-Event_Finish_Exit_Mail", "Reward-Event_Finish_Exit_Mission"]
+    },
+    "Reward-Event_Finish_Navigate": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Home" }
+            }
+        },
+        "on_error": ["Reward-Event_Finish"],
+        "next": ["Reward-Event_Finish_Home"]
+    },
+    "Reward-Event_Finish_Exit_Mail": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 메일 (0-11)[/color]",
+        "next": ["Reward-Mail"]
+    },
+    "Reward-Event_Finish_Exit_Mission": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 신입 임무 (0-1 연장)[/color]",
+        "enabled": false,
+        "next": ["Reward-Mission"]
+    }
+}

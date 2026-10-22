@@ -1,0 +1,288 @@
+{
+    "Newbie": {
+        "focus": "[color:#4FA3FF]▶ 초보자 헤드헌팅[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": [
+                        "Public/DialogDonkey.png",
+                        "Public/DialogPRTS.png",
+                        "Public/DialogDobermann.png"
+                    ]
+                }
+            }
+        },
+        "next": ["[JumpBack]Loading", "Newbie_Exit", "[JumpBack]DialogNext"]
+    },
+    "Newbie_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "우선은한번진행해보도" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [800, 620, 200, 60], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_Exit", "Newbie_Pull"],
+        "next": ["Newbie_Pull"]
+    },
+
+    "Newbie_Pull": {
+        "focus": "초보자 뽑기",
+        "next": ["[JumpBack]Loading", "Newbie_Pull_Skip"]
+    },
+    "Newbie_Pull_Skip": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["GachaSkip"]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": ["Newbie_Pull_Spam"]
+    },
+    "Newbie_Pull_Spam": {
+        "doc": "아미야 대화가 나올 때까지 중앙 연타",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [440, 260, 400, 200]
+            }
+        },
+        "next": ["Newbie_Pull_Exit", "Newbie_Pull_Spam"]
+    },
+    "Newbie_Pull_Exit": {
+        "doc": "대사 문구는 써지는 도중 연타에 넘어가므로 다이얼로그 프로필로 판단",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["DialogNext"]
+            }
+        },
+        "next": ["Newbie_Squad"]
+    },
+
+    "Newbie_Squad": {
+        "focus": "분대 편성",
+        "next": [
+            "[JumpBack]Loading",
+            "Newbie_GoHome_Exit",
+            "Newbie_Squad_Exit",
+            "[JumpBack]Newbie_Squad_Select",
+            "[JumpBack]Newbie_Squad_Add",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Newbie_Squad_Add": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": {
+                    "area": "upper",
+                    "text": "이쪽을터치하여오퍼레"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [517, 144, 91, 133], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_Squad"]
+    },
+    "Newbie_Squad_Select": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "오퍼레이터를선택하고" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [390, 126, 109, 146], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_Squad"]
+    },
+    "Newbie_Squad_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "upper", "text": "확인버튼을터치하여주" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [1051, 662, 126, 40], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_Squad"],
+        "next": ["Newbie_GoHome"]
+    },
+
+    "Newbie_GoHome": {
+        "focus": "메인 이동",
+        "anchor": { "BattleEnterNext": "BattleRetreat", "BattleResultNext": "Newbie_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "Newbie_EnterStage_Exit",
+            "Newbie_GoHome_Exit",
+            "[JumpBack]Newbie_GoHome_NavBar",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Newbie_GoHome_NavBar": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "오퍼레이터가팀에편성" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [170, 15, 200, 45], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_GoHome"]
+    },
+    "Newbie_GoHome_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "이곳을터치하여메인화" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [68, 257, 49, 46], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_GoHome"],
+        "next": ["Newbie_EnterStage"]
+    },
+
+    "Newbie_EnterStage": {
+        "focus": "0-1 진입",
+        "next": [
+            "[JumpBack]Loading",
+            "BattleEnterReady",
+            "Newbie_EnterStage_Exit",
+            "[JumpBack]VoiceResourceLater",
+            "[JumpBack]ClosePopup",
+            "[JumpBack]EarnReward",
+            "[JumpBack]Newbie_EnterStage_EvilTime_Confirm",
+            "[JumpBack]Newbie_EnterStage_EvilTime",
+            "[JumpBack]Newbie_EnterStage_Story",
+            "[JumpBack]DialogNext"
+        ]
+    },
+    "Newbie_EnterStage_Story": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Newbie/EnterStory.png",
+                "roi": [180, 570, 285, 145]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Newbie_EnterStage_EvilTime": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Newbie/EnterEvilTime.png",
+                "roi": [740, 290, 310, 300]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Newbie_EnterStage_EvilTime_Confirm": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [1005, 555, 245, 130],
+                "expected": "^진입하기$"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Newbie_EnterStage_Exit": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "Dialog",
+                "custom_recognition_param": { "area": "lower", "text": "작전지점을선택하여주" }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "click": [576, 317, 129, 43], "pre_click": true }
+            }
+        },
+        "on_error": ["Newbie_EnterStage"],
+        "next": ["BattleEnter"]
+    },
+
+    "Newbie_Result": {
+        "focus": "메인 이동",
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Newbie_Result_Exit"]
+    },
+    "Newbie_Result_Exit": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Home" }
+            }
+        },
+        "on_error": ["Newbie_Result"],
+        "next": ["Newbie_Branch"]
+    },
+
+    "Newbie_Branch": {
+        "doc": "리세 전략에 따라 탈출구 노드 하나만 활성화 (0-1 / 0-1 연장 전략 Newbie_Branch_Exit_Mail, 0-11 전략 Newbie_Branch_Exit_Stage01)",
+        "next": ["Newbie_Branch_Exit_Mail", "Newbie_Branch_Exit_Stage01"]
+    },
+    "Newbie_Branch_Exit_Mail": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 메일 (0-1)[/color]",
+        "next": ["Reward-Mail"]
+    },
+    "Newbie_Branch_Exit_Stage01": {
+        "focus": "[color:#FF8C00]◆ 분기점 · 0-1 (0-11)[/color]",
+        "next": ["Stage01"]
+    }
+}

@@ -1,0 +1,98 @@
+{
+    "Stage07-TR6": {
+        "focus": "[color:#4FA3FF]▶ TR-6[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "next": ["Stage07-TR6_StageSelect"]
+    },
+
+    "Stage07-TR6_StageSelect": {
+        "focus": "스테이지 선택",
+        "next": ["Stage07-TR6_StageSelect_Exit"]
+    },
+    "Stage07-TR6_StageSelect_Exit": {
+        "doc": "스테이지 선택",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectStage",
+                "custom_action_param": { "stage": "TR-6" }
+            }
+        },
+        "on_error": ["Stage07-TR6_StageSelect"],
+        "anchor": { "BattleEnterNext": "Stage07-TR6_Deploy" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage07-TR6_Deploy": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage07-TR6_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage07-TR6_Deploy_Beagle",
+            "Stage07-TR6_Deploy_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage07-TR6_Deploy_Beagle": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_122_beagle", "cost": 16 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_122_beagle",
+                    "cell": [633, 340],
+                    "direction": "right",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage07-TR6_Deploy_Exit": {
+        "doc": "12F 배치",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_009_12fce", "cost": 24 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_009_12fce",
+                    "cell": [627, 240],
+                    "direction": "right",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage07-TR6_Deploy"],
+        "next": ["BattleWait"]
+    },
+
+    "Stage07-TR6_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage08"]
+    }
+}

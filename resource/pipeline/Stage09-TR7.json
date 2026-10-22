@@ -1,0 +1,138 @@
+{
+    "Stage09-TR7": {
+        "focus": "[color:#4FA3FF]▶ TR-7[/color]",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetSpeakers",
+                "custom_action_param": {
+                    "templates": ["Public/DialogDobermann.png"]
+                }
+            }
+        },
+        "next": ["Stage09-TR7_StageSelect"]
+    },
+
+    "Stage09-TR7_StageSelect": {
+        "focus": "스테이지 선택",
+        "next": ["Stage09-TR7_StageSelect_Exit"]
+    },
+    "Stage09-TR7_StageSelect_Exit": {
+        "doc": "스테이지 선택",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SelectStage",
+                "custom_action_param": { "stage": "TR-7" }
+            }
+        },
+        "on_error": ["Stage09-TR7_StageSelect"],
+        "anchor": { "BattleEnterNext": "Stage09-TR7_Deploy" },
+        "next": ["BattleEnter"]
+    },
+
+    "Stage09-TR7_Deploy": {
+        "focus": "오퍼레이터 배치",
+        "anchor": { "BattleEnterNext": "", "BattleResultNext": "Stage09-TR7_Result" },
+        "next": [
+            "[JumpBack]Loading",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "[JumpBack]Stage09-TR7_Deploy_Adnachiel",
+            "Stage09-TR7_Deploy_Exit",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage09-TR7_Deploy_Adnachiel": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_211_adnach", "cost": 9 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_211_adnach",
+                    "cell": [735, 500],
+                    "direction": "up",
+                    "wait_ms": 150,
+                    "retry": false
+                }
+            }
+        }
+    },
+    "Stage09-TR7_Deploy_Exit": {
+        "doc": "쿠오라 배치",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "operator": "char_150_snakek", "cost": 17 }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Deploy",
+                "custom_action_param": {
+                    "operator": "char_150_snakek",
+                    "cell": [540, 349],
+                    "direction": "right",
+                    "wait_ms": 150
+                }
+            }
+        },
+        "on_error": ["Stage09-TR7_Deploy"],
+        "next": ["Stage09-TR7_SkillUse"]
+    },
+
+    "Stage09-TR7_SkillUse": {
+        "focus": "스킬 사용",
+        "next": [
+            "[JumpBack]Loading",
+            "BattleResult",
+            "[JumpBack]SkipPlot",
+            "[JumpBack]DialogNext",
+            "Stage09-TR7_SkillUse_Kuora",
+            "[JumpBack]Battle2x",
+            "[JumpBack]BattleInProgress"
+        ]
+    },
+    "Stage09-TR7_SkillUse_Kuora": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DeployReady",
+                "custom_recognition_param": { "cost": 43 }
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [413, 319, 20, 20]
+            }
+        },
+        "post_delay": 500,
+        "next": ["Stage09-TR7_SkillUse_Exit"]
+    },
+    "Stage09-TR7_SkillUse_Exit": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [860, 410, 39, 40]
+            }
+        },
+        "post_delay": 500,
+        "next": ["BattleWait"]
+    },
+
+    "Stage09-TR7_Result": {
+        "anchor": { "BattleResultNext": "" },
+        "next": ["Stage10"]
+    }
+}
