@@ -83,6 +83,7 @@
         "next": [
             "[JumpBack]Loading",
             "Gacha_Pull_Exit",
+            "[JumpBack]Gacha_Pull_Shop",
             "[JumpBack]Gacha_Pull_Skip",
             "[JumpBack]Gacha_Pull_Bonus",
             "[JumpBack]Gacha_Pull_Exchange",
@@ -124,6 +125,7 @@
         "next": [
             "[JumpBack]Loading",
             "Gacha_Pull_Exit",
+            "[JumpBack]Gacha_Pull_Shop",
             "[JumpBack]Gacha_Pull_Skip",
             "[JumpBack]Gacha_Pull_Bonus",
             "[JumpBack]Gacha_Pull_Exchange",
@@ -231,6 +233,24 @@
         },
         "on_error": ["[Anchor]GachaPullRetry"],
         "next": ["[Anchor]GachaFail"]
+    },
+    "Gacha_Pull_Shop": {
+        "doc": "교환 확인이 지연돼 순오리지늄 부족 팝업의 확인이 눌리면 열리는 상점에서 직전 배너로 복귀. 호출 루프가 anchor GachaPullRetry로 실패 시 루프 지정",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [510, 88, 285, 36],
+                "expected": ["오리지늄", "패키지"]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "Navigate",
+                "custom_action_param": { "dest": "Headhunting" }
+            }
+        },
+        "on_error": ["[Anchor]GachaPullRetry"]
     },
     "Gacha_Pull_Skip": {
         "recognition": {
