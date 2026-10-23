@@ -1,3 +1,7 @@
 {
-    "CurrentLanguage": "en-US"
+    "CurrentLanguage": "en-US",
+    "DownloadSourceIndex": 0,
+    "EnableCheckVersion": true,
+    "EnableAutoUpdateResource": true,
+    "ResourceUpdateChannelIndex": 2
 }
