@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -18,7 +19,12 @@ def main() -> None:
     import select_actions
     import watchdog
 
-    Toolkit.init_option("./")
+    # AgentServer's init_option ignores config/maa_option.json and only applies the given config.
+    try:
+        option = json.loads(Path("config/maa_option.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        option = {}
+    Toolkit.init_option("./", option)
 
     if len(sys.argv) < 2:
         print("Usage: python main.py <socket_id>")
