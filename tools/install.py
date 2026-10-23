@@ -27,6 +27,7 @@ ARCHS = {
 LOCALE_DLL = ROOT / "tools" / "locale" / "MFAAvalonia.Core.resources.dll"
 CORE_DLL = ROOT / "tools" / "locale" / "MFAAvalonia.Core.dll"
 CONFIG_TEMPLATE = ROOT / "tools" / "config.template.json"
+MAA_OPTION = ROOT / "tools" / "maa_option.json"
 ZIP_ENTRIES = (
     "MFAAvalonia.exe",
     "MFAAvalonia.dll",
@@ -186,6 +187,7 @@ def make_zip(version, rid):
             for path in zip_files(entry):
                 z.write(path, path.relative_to(ROOT).as_posix())
         z.write(CONFIG_TEMPLATE, "config/config.template.json")
+        z.write(MAA_OPTION, "config/maa_option.json")
     print(f"Wrote {target}")
 
 
