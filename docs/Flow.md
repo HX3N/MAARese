@@ -1,6 +1,6 @@
 # 명일방주 리세 흐름
 
-리세 시작(`Account`)의 흐름 지도입니다. 순서는 게임데이터의 스토리 트리거로 추론하고, 각 구간을 처리하는 파이프라인을 대응시킵니다. 대사 원문은 `docs/gamedata/<경로>.md`에 순서대로 있습니다. 계정 관리(`Account_Task`)는 맨 아래 [계정 관리](#계정-관리)에 따로 적습니다. 전투 공통 구조와 배치는 [Battle.md](Battle.md)에 있습니다. 좌표·영역·대기 시간 같은 값은 `resource/pipeline/`이 원본입니다.
+리세 시작(`Account_Entry`)의 흐름 지도입니다. 순서는 게임데이터의 스토리 트리거로 추론하고, 각 구간을 처리하는 파이프라인을 대응시킵니다. 대사 원문은 `docs/gamedata/<경로>.md`에 순서대로 있습니다. 계정 관리(`Account_Task`)는 맨 아래 [계정 관리](#계정-관리)에 따로 적습니다. 전투 공통 구조와 배치는 [Battle.md](Battle.md)에 있습니다. 좌표·영역·대기 시간 같은 값은 `resource/pipeline/`이 원본입니다.
 
 ## 읽는 법
 
@@ -16,6 +16,7 @@
 
 ```mermaid
 flowchart TD
+    E["Account_Entry<br>시작 노드 · 해상도 확인"] --> A
     A["Account<br>계정 초기화"] --> B["Account_Launch<br>게임 실행"]
     B --> B2["Account_Login<br>게스트 로그인 · 계정명"]
     B2 --> C["Prologue<br>프롤로그 1 · 2"]
@@ -48,7 +49,7 @@ flowchart TD
 
 ### 1. 시작
 
-`pipeline 기준`. `Account_Launch`가 MuMu 광고(우상단 `광고 제거` 뱃지가 보이면 그 오른쪽 ×), 리소스 다운로드 팝업(`게임 나가기`가 보이면 클릭), 음성 다운로드 선택 해제, 게임 시작·리소스 확인·업데이트·공지를 처리합니다. 시작 화면에 로그아웃 아이콘이 있으면 `Account_Logout`이 유저 센터에서 로그아웃하고 Start를 누르고, `Account_Relogin`이 계정찾기 닫기, `다른 계정 로그인`, 계정관리 두 화면, `일주일 동안 보지 않기`·`30일 동안 보지 않기` 팝업을 처리한 뒤 약관부터 `Account_Login`에 합류합니다. 두 경로가 함께 쓰는 `일주일 동안 보지 않기` 처리(`Account_Login_Sync`)는 눌러도 팝업이 남으면 호출 루프가 정한 귀환점 `LoginSyncRetry`로 돌아갑니다([AGENTS.md](../AGENTS.md)의 "흐름 구조" 재확인). 로그아웃 경로의 계정찾기·계정관리 화면은 `Account_Login`이 처리하는 화면과 달라 전용 노드(`Account_Relogin_Find`·`Account_Relogin_Manager`·`Account_Relogin_Guest`)로 처리합니다. 시작 화면을 터치하면 `Account_Login`이 게스트 로그인과 계정명 입력(옵션 "계정 이름")을 한 뒤 프롤로그로 넘어갑니다. `Account`(`AccountWipe`)는 게임을 종료하고 데이터를 지우고, `Account_LaunchApp`(`LaunchApp`)이 게임을 다시 실행합니다. 실행하지 못하면 `Account_LaunchFail`이 안내하고 작업을 끝냅니다.
+`pipeline 기준`. `Account_Launch`가 MuMu 광고(우상단 `광고 제거` 뱃지가 보이면 그 오른쪽 ×), 리소스 다운로드 팝업(`게임 나가기`가 보이면 클릭), 음성 다운로드 선택 해제, 게임 시작·리소스 확인·업데이트·공지를 처리합니다. 시작 화면에 로그아웃 아이콘이 있으면 `Account_Logout`이 유저 센터에서 로그아웃하고 Start를 누르고, `Account_Relogin`이 계정찾기 닫기, `다른 계정 로그인`, 계정관리 두 화면, `일주일 동안 보지 않기`·`30일 동안 보지 않기` 팝업을 처리한 뒤 약관부터 `Account_Login`에 합류합니다. 두 경로가 함께 쓰는 `일주일 동안 보지 않기` 처리(`Account_Login_Sync`)는 눌러도 팝업이 남으면 호출 루프가 정한 귀환점 `LoginSyncRetry`로 돌아갑니다([AGENTS.md](../AGENTS.md)의 "흐름 구조" 재확인). 로그아웃 경로의 계정찾기·계정관리 화면은 `Account_Login`이 처리하는 화면과 달라 전용 노드(`Account_Relogin_Find`·`Account_Relogin_Manager`·`Account_Relogin_Guest`)로 처리합니다. 시작 화면을 터치하면 `Account_Login`이 게스트 로그인과 계정명 입력(옵션 "계정 이름")을 한 뒤 프롤로그로 넘어갑니다. 진입 노드 `Account_Entry`는 interface Debug의 시작 노드가 있으면 그 노드로 가고, 없으면 기기 원본 해상도가 1280×720이 아닐 때 `Account_Resolution_Notice`가 안내만 띄운 뒤 `Account`로 갑니다. `Account`(`AccountWipe`)는 게임을 종료하고 데이터를 지우고, `Account_LaunchApp`(`LaunchApp`)이 게임을 다시 실행합니다. 루트 권한이 없어 데이터를 지우지 못하면 `Account_RootFail`이, 실행하지 못하면 `Account_LaunchFail`이 안내하고 작업을 끝냅니다.
 
 ```mermaid
 flowchart TD
@@ -192,7 +193,7 @@ flowchart TD
     R --> N(["Stage02"])
 ```
 
-### 7. 0-2 ~ 0-11 (0-11 전략)
+### 7. 0-2 ~ 0-11 (0-11 전략, 연장 전략의 이어 가기)
 
 해금 순서(`stage_table` unlockCondition): 0-1 → TR-1 → 0-2 → TR-2 → 0-3 → TR-3 → 0-4 → TR-4 → 0-5 → 0-6 → TR-5 → 0-7 → TR-6 → 0-8 → 0-9 → TR-7 → 0-10 → 0-11.
 
@@ -202,7 +203,7 @@ flowchart TD
 
 **진행 순서**
 
-0-2 → 공개모집 가이드 → TR-2 → 0-3 → TR-3 → 0-4 → 레벨업 가이드 → TR-4 → 0-5 → 0-6 → 스킬 가이드 → TR-5 → 0-7 → TR-6 → 0-8 → 0-9 → 임무 가이드 → TR-7 → 0-10 → 물자 비축 가이드 → 0-11 → 기반시설 가이드 → 이벤트 → 메일 → 신입 임무 → 헤드헌팅. 파일은 [AGENTS.md](../AGENTS.md)의 이름 규칙대로 `Stage<스테이지>`, `Stage<앞 스테이지>-<구간>`입니다.
+0-2 → 공개모집 가이드 → TR-2 → 0-3 → TR-3 → 0-4 → 레벨업 가이드 → TR-4 → 0-5 → 0-6 → 스킬 가이드 → TR-5 → 0-7 → TR-6 → 0-8 → 0-9 → 임무 가이드 → TR-7 → 0-10 → 물자 비축 가이드 → 0-11 → 기반시설 가이드 → 이벤트. 이벤트 뒤 경로는 리세 전략에 따라 갈립니다([8. 이벤트](#8-이벤트)). 파일은 [AGENTS.md](../AGENTS.md)의 이름 규칙대로 `Stage<스테이지>`, `Stage<앞 스테이지>-<구간>`입니다.
 
 ```mermaid
 flowchart LR
@@ -237,7 +238,7 @@ flowchart TD
 - 0장 지도에서 고르는 스테이지는 커스텀 동작 [`SelectStage`](../CONTRIBUTING.md#selectstage)가 처리합니다. 스테이지를 고른 직후 뜨는 대사는 다음 루프가 넘깁니다.
 - 0-2는 TR-1 결과 뒤 지도에 바로 보이므로 `SelectStage` 없이 지도의 `0-2` 글자를 OCR로 찾아 누릅니다.
 - 지난 작전 바로가기로 지도에 오면 그 스테이지가 선택된 상태라 먼저 해제합니다.
-- 작전 화면에서 0장 지도로 들어가는 곳(0-1 재진입, 가이드 뒤 지도 복귀)은 지난 작전 바로가기를 누릅니다(0-1 재진입은 `Stage01_LastStage_Exit`, 가이드 뒤 지도 복귀는 Public 공유 루프 `OperationLastStage`).
+- 작전 화면에서 0장 지도로 들어가는 곳(0-1 재진입, 가이드 뒤 지도 복귀)은 지난 작전 바로가기를 누릅니다(0-1 재진입은 `Stage01_LastStage_Exit`, 공개모집·레벨업·스킬·임무 가이드 뒤 지도 복귀는 Public 공유 루프 `OperationLastStage`, 물자 비축 가이드 뒤는 메인화면을 거쳐 `Stage10-Weekly_Operation`).
 - TR-6 통과 뒤 대리 지휘가 가능한 스테이지(`canBattleReplay`)를 처음 고르면 `guide/misc/auto_battle`(PRTS 팝업 4개, 1회)이 뜹니다. 리세 흐름에서는 0-8입니다. 팝업 뒤로 작전 개시 버튼이 보이므로 작전 개시 루프는 `DialogNext`를 `OperationStart`보다 앞에 둡니다.
 
 **편성**
@@ -250,14 +251,14 @@ flowchart TD
 
 **가이드**
 
-| 시점         | 파이프라인        | 처리                                                                                                                                                                                                  | 게임데이터                                                                                                                                      |
-| ------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0-2 결과 뒤  | `Stage02-Recruit` | 공개모집 화면의 첫 빈 슬롯 `대상 클릭`. 모집은 시작하지 않음                                                                                                                                          | [guide/l0-2/0_recruit_normal](gamedata/guide/l0-2/0_recruit_normal.md)                                                                          |
-| 0-4 결과 뒤  | `Stage04-LevelUp` | 첫 오퍼레이터(강조 카드 `FirstOperatorGuide`) → 레벨 영역 `대상 클릭`. 레벨업은 하지 않음                                                                                                             | [guide/l0-4/0_upgrade_char](gamedata/guide/l0-4/0_upgrade_char.md)                                                                              |
-| 0-6 결과 뒤  | `Stage06-SkillUp` | 첫 오퍼레이터 → 스킬 `대상 클릭`. 두 가이드 중 하나가 뜸                                                                                                                                              | [guide/l0-6/0_upgrade_skill](gamedata/guide/l0-6/0_upgrade_skill.md), [0_upgrade_skill_mastery](gamedata/guide/l0-6/0_upgrade_skill_mastery.md) |
-| 0-9 결과 뒤  | `Stage09-Mission` | 가이드가 임무 화면으로 이동. 대사만 넘김                                                                                                                                                              | [guide/l0-9/0_mission_others](gamedata/guide/l0-9/0_mission_others.md)                                                                          |
-| 0-10 결과 뒤 | `Stage10-Weekly`  | 물자 비축 버튼 `대상 클릭`. 가이드가 물자 비축 탭에서 끝나 메인화면을 거쳐 지도로 돌아감                                                                                                              | [guide/l0-10/0_weekly_daily](gamedata/guide/l0-10/0_weekly_daily.md)                                                                            |
-| 0-11 결과 뒤 | `Stage11-Infrast` | 기반시설 이동 → 건설 모드 → 방 청소 5곳 → 발전소·제조소·무역소 건설 → 일반 모드 → 제조소 오퍼레이터 배치 → 제조 설정 → 무역소 오퍼레이터 배치 → 첫 오더. 기반시설 이동은 `터치`, 나머지는 `대상 클릭` | [guide/l0-11/0_building_init](gamedata/guide/l0-11/0_building_init.md) ~ [3d_op_trade](gamedata/guide/l0-11/3d_op_trade.md)                     |
+| 시점         | 파이프라인        | 처리                                                                                                                                                                                                  | 게임데이터                                                                                                                  |
+| ------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 0-2 결과 뒤  | `Stage02-Recruit` | 공개모집 화면의 첫 빈 슬롯 `대상 클릭`. 모집은 시작하지 않음                                                                                                                                          | [guide/l0-2/0_recruit_normal](gamedata/guide/l0-2/0_recruit_normal.md)                                                      |
+| 0-4 결과 뒤  | `Stage04-LevelUp` | 첫 오퍼레이터(강조 카드 `FirstOperatorGuide`) → 레벨 영역 `대상 클릭`. 레벨업은 하지 않음                                                                                                             | [guide/l0-4/0_upgrade_char](gamedata/guide/l0-4/0_upgrade_char.md)                                                          |
+| 0-6 결과 뒤  | `Stage06-SkillUp` | 첫 오퍼레이터 → 스킬 `대상 클릭`                                                                                                                                                                      | [guide/l0-6/0_upgrade_skill](gamedata/guide/l0-6/0_upgrade_skill.md)                                                        |
+| 0-9 결과 뒤  | `Stage09-Mission` | 가이드가 임무 화면으로 이동. 대사만 넘김                                                                                                                                                              | [guide/l0-9/0_mission_others](gamedata/guide/l0-9/0_mission_others.md)                                                      |
+| 0-10 결과 뒤 | `Stage10-Weekly`  | 물자 비축 버튼 `대상 클릭`. 가이드가 물자 비축 탭에서 끝나 메인화면을 거쳐 지도로 돌아감                                                                                                              | [guide/l0-10/0_weekly_daily](gamedata/guide/l0-10/0_weekly_daily.md)                                                        |
+| 0-11 결과 뒤 | `Stage11-Infrast` | 기반시설 이동 → 건설 모드 → 방 청소 5곳 → 발전소·제조소·무역소 건설 → 일반 모드 → 제조소 오퍼레이터 배치 → 제조 설정 → 무역소 오퍼레이터 배치 → 첫 오더. 기반시설 이동은 `터치`, 나머지는 `대상 클릭` | [guide/l0-11/0_building_init](gamedata/guide/l0-11/0_building_init.md) ~ [3d_op_trade](gamedata/guide/l0-11/3d_op_trade.md) |
 
 - 공개모집·레벨업·스킬·임무 가이드는 끝난 뒤 `Navigate {dest: Operation}` → 공유 루프 `OperationLastStage`(지난 작전 바로가기)로 0장 지도에 돌아갑니다. 작전 화면의 `stagepage_v2_intro`가 지난 작전 구역을 강조해 대사 중에도 글자가 읽히므로, 지도에서 작전 개시 버튼이 보여야 넘어갑니다.
 - 기반시설 이동 안내와 기반시설 진입 뒤 AVG 대사는 탭하면 넘어가고 스킵할 수 없어, PRTS 다이얼로그 프로필은 누르고 프로필이 안 보이면 화면을 연타하다가 클로저 다이얼로그 프로필이 보이면 멈춥니다. 청소 확인과 건설 확인은 공용 노드가 처리하고, 방 루프와 그 탈출구가 귀환점 `BuildingConfirmNext`로 확인 뒤 루프를, `BuildingConfirmRetry`로 확인 실패 시 돌아올 루프를 지정합니다. 앞 루프가 앞 탈출구로 방 루프를 건너뛰어도 탈출구가 귀환점을 정합니다.
@@ -326,7 +327,7 @@ flowchart TD
 
 ### 10. 신입 임무
 
-`pipeline 기준`. `Reward-Mission`. 메인화면 설정 버튼으로 "로도스 적응하기" 화면을 열고 신입 임무 탭을 누릅니다. "다채로운보상"이 보이면 "수령하기" 버튼이 보이는 대로 눌러 보상을 받고, "수령하기"가 더 보이지 않고 팝업 닫기가 보이면 닫은 뒤 헤드헌팅으로 갑니다.
+`pipeline 기준`. `Reward-Mission`. 메인화면 설정 버튼으로 "로도스 적응하기" 화면을 열고 신입 임무 탭을 누릅니다. "다채로운보상"이 보이면 "획득 가능" 표시가 보이는 대로 눌러 보상을 받고, "획득 가능"이 더 보이지 않고 팝업 닫기가 보이면 닫은 뒤 헤드헌팅으로 갑니다.
 
 ```mermaid
 flowchart TD
@@ -334,7 +335,7 @@ flowchart TD
     H --> S["Reward-Mission_Settings<br>설정 버튼"]
     S --> T["Reward-Mission_Tab<br>신입 임무 탭"]
     T --> L["Reward-Mission_List<br>보상 목록 확인"]
-    L --> C["Reward-Mission_Claim<br>수령하기 반복"]
+    L --> C["Reward-Mission_Claim<br>획득 가능 클릭 반복"]
     C -- "팝업 닫기" --> GH["Reward-Mission_Headhunting<br>Navigate Headhunting"]
     GH --> G(["Gacha"])
 ```
@@ -349,7 +350,7 @@ flowchart TD
 - 판독 전에 오퍼레이터 목록에서 레어도 정렬 → 뒤로가기로 메인화면 → 메인화면의 오퍼레이터 버튼으로 재진입을 거칩니다.
 - 판독(`Gacha_Scan_Run`)은 이름 OCR과 6성 별 템플릿 중 큰 값을 6성 수로 봅니다. 옵션 "기록 조건"을 만족하면 계정 데이터는 `accounts/_shared_prefs/<시각>/`에, 스크린샷은 `accounts/6성_<수>개/`에 기록합니다.
 - `Gacha_Scan_Result`가 회차·시간·헤드헌팅 횟수·6성 수를, `Gacha_Scan_Detail`이 6성 이름과 기록 여부를 로그에 띄웁니다(형식은 [AGENTS.md](../AGENTS.md) "실행 로그"). `Gacha_Scan_Detail`은 옵션 "반복 횟수"에 도달했으면 여기서 태스크를 끝내고, 아니면 `Account`로 다음 리세를 시작합니다. 회차는 오류로 처음부터 다시 시작한 회차도 셉니다.
-- 연장 전략은 회차의 첫 판독에서 6성 수가 옵션 "진행 조건" 이상이면 `Gacha_Scan_Detail`의 다음을 `Account` 대신 `Gacha_Scan_Active`로 바꿔 `Stage01`부터 0-11까지 이어 갑니다. 이때는 반복 횟수에 도달했어도 태스크를 끝내지 않고, 이어 간 뒤 두 번째 판독 뒤에 `Account`로 갑니다. 두 번째 판독도 "기록 조건"대로 기록합니다.
+- 연장 전략은 회차의 첫 판독에서 6성 수가 옵션 "진행 조건" 이상이면 `Gacha_Scan_Detail`의 다음을 `Account` 대신 `Gacha_Scan_Active`로 바꿔 `Stage01`부터 0-11까지 이어 갑니다. 이때는 반복 횟수에 도달했어도 태스크를 끝내지 않고 이어 갑니다. 두 번째 판독 뒤에는 이어 가지 않고, 반복 횟수에 도달했으면 태스크를 끝내고 아니면 `Account`로 갑니다. 두 번째 판독도 "기록 조건"대로 기록합니다.
 
 ```mermaid
 flowchart TD
@@ -390,5 +391,4 @@ flowchart TD
 ## 확인이 필요한 곳
 
 - **불러오기는 동기화 팝업에 의존합니다.** 팝업이 뜨지 않으면 계정을 불러왔더라도 태스크가 실패로 끝납니다.
-- **`l0-6` 가이드와 진행도.** 두 가이드는 스킬 화면을 조작할 때만 나오고 진행도를 600에서 900으로 올립니다. 나오지 않으면 진행도 조건이 있는 `assist_char`(699 이상), `auto_battle`(799 이상), `l0-9`(900 이상)부터 이후 가이드가 열리지 않는지 확인합니다.
 - **`training_2_a`·`training_2_b`의 스킵.** HEADER에 `is_skippable`이 없어 스킵 가능 여부를 알 수 없습니다.
