@@ -212,7 +212,7 @@
         }
     },
     "Gacha_Pull_Exit": {
-        "doc": "순오리지늄 부족이면 취소하고 한 단계 아래 뽑기로. 호출 루프가 anchor GachaPullRetry로 실패 시 루프 지정",
+        "doc": "순오리지늄 부족 시 취소 후 한 단계 아래 뽑기로 이동. 호출 루프가 anchor GachaPullRetry로 실패 시 루프 지정",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -301,21 +301,93 @@
     },
 
     "Gacha_Rarity": {
-        "next": ["Gacha_Rarity_Exit"]
+        "next": ["[JumpBack]Loading", "Gacha_Rarity_Exit", "[JumpBack]Gacha_Rarity_Click"]
     },
     "Gacha_Rarity_Exit": {
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [921, 14, 104, 52],
-                "expected": "레어도"
+                "any_of": ["Gacha_RarityDesc"]
+            }
+        },
+        "next": ["Gacha_Return"]
+    },
+
+    "Gacha_ListReady": {
+        "doc": "오퍼레이터 목록 화면 상단 정렬 바 표시",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [815, 15, 350, 50],
+                                "expected": ["레벨", "레.도", "정렬"]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [1200, 15, 80, 50],
+                                "expected": "포지션"
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [720, 15, 95, 50],
+                                "template": "Gacha/Scan.png",
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Gacha_RarityDesc": {
+        "doc": "레어도 내림차순 정렬(레어도 밑 v 화살표 꼭짓점 파란색)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "Gacha_ListReady",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [967, 50, 7, 4],
+                                "method": 4,
+                                "lower": [0, 110, 170],
+                                "upper": [60, 180, 240],
+                                "count": 6
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Gacha_Rarity_Click": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": ["Gacha_ListReady"]
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target": [946, 31, 48, 17]
+            }
         },
-        "post_delay": 1000,
-        "next": ["Gacha_Return"]
+        "post_delay": 1000
     },
 
     "Gacha_Return": {
@@ -368,13 +440,13 @@
 
     "Gacha_Scan": {
         "focus": "6성 식별 시작",
-        "next": ["Gacha_Scan_Rarity"]
+        "next": ["[JumpBack]Loading", "Gacha_Scan_Exit", "[JumpBack]Gacha_Rarity_Click"]
     },
-    "Gacha_Scan_Rarity": {
+    "Gacha_Scan_Exit": {
         "recognition": {
             "type": "Or",
             "param": {
-                "any_of": ["Gacha_Rarity_Exit"]
+                "any_of": ["Gacha_RarityDesc"]
             }
         },
         "next": ["Gacha_Scan_Run"]

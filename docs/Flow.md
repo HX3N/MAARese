@@ -347,7 +347,7 @@ flowchart TD
 - 10회(`Gacha_PullTen`)·1회(`Gacha_PullOne`) 루프가 각각 진행 클릭·결과 스킵·팝업 처리를 반복하고, 순오리지늄 부족 팝업(`Gacha_Pull_Exit`)이 귀환점 `GachaFail`로 루프를 빠져나갑니다. 10회에서 부족하면 1회로, 1회에서 부족하면 오퍼레이터 목록을 거쳐 판독으로 갑니다. 부족·교환 팝업을 눌러도 남으면 두 루프가 정한 귀환점 `GachaPullRetry`로 진행 중이던 루프에 돌아갑니다([AGENTS.md](../AGENTS.md)의 "흐름 구조" 재확인).
 - 모집 확인 팝업(`Gacha_Pull_Confirm`)은 `모집하시겠습니까` 문구로 판정해 확인을 누릅니다. 순오리지늄 부족 팝업(`Gacha_Pull_Exit`)은 순오리지늄 아이콘 템플릿으로 판정하고, 확인은 상점으로 이동하므로 취소만 누릅니다. 교환 확인이 지연돼 부족 팝업의 확인이 눌리면, 상점의 `오리지늄`·`패키지` 글자(`Gacha_Pull_Shop`)로 판정해 내비게이션으로 헤드헌팅에 돌아가고, 직전 배너에서 하던 뽑기를 이어 갑니다. 순오리지늄을 합성옥으로 교환하는 팝업(`Gacha_Pull_Exchange`)은 교환 아이콘 템플릿으로 판정해 확인을 누르며, 이 팝업에도 `모집하시겠습니까` 문구가 있으므로 `Gacha_Pull_Confirm`보다 앞에 둡니다.
 - 뽑기 중에는 루프가 바뀌지 않으므로, Watchdog은 결과 스킵(`Gacha_Pull_Skip`)마다 정체 타이머를 다시 셉니다([CONTRIBUTING.md](../CONTRIBUTING.md#watchdog)의 Watchdog).
-- 판독 전에 오퍼레이터 목록에서 레어도 정렬 → 뒤로가기로 메인화면 → 메인화면의 오퍼레이터 버튼으로 재진입을 거칩니다.
+- 판독 전에 오퍼레이터 목록에서 레어도 내림차순(높은 성급부터) 정렬 → 뒤로가기로 메인화면 → 메인화면의 오퍼레이터 버튼으로 재진입을 거칩니다. 정렬은 레어도 밑 화살표가 아래를 가리킬 때까지 레어도를 누르며(`Gacha_Rarity_Click`), 게임이 정렬 상태를 회차를 넘어 기억할 수 있으므로 판독(`Gacha_Scan`) 직전에도 같은 판정으로 다시 맞춥니다.
 - 판독(`Gacha_Scan_Run`)은 이름 OCR과 6성 별 템플릿 중 큰 값을 6성 수로 봅니다. 옵션 "기록 조건"을 만족하면 계정 데이터는 `accounts/_shared_prefs/<시각>/`에, 스크린샷은 `accounts/6성_<수>개/`에 기록합니다.
 - `Gacha_Scan_Result`가 회차·시간·헤드헌팅 횟수·6성 수를, `Gacha_Scan_Detail`이 6성 이름과 기록 여부를 로그에 띄웁니다(형식은 [AGENTS.md](../AGENTS.md) "실행 로그"). `Gacha_Scan_Detail`은 옵션 "반복 횟수"에 도달했으면 여기서 태스크를 끝내고, 아니면 `Account`로 다음 리세를 시작합니다. 회차는 오류로 처음부터 다시 시작한 회차도 셉니다.
 - 연장 전략은 회차의 첫 판독에서 6성 수가 옵션 "진행 조건" 이상이면 `Gacha_Scan_Detail`의 다음을 `Account` 대신 `Gacha_Scan_Active`로 바꿔 `Stage01`부터 0-11까지 이어 갑니다. 이때는 반복 횟수에 도달했어도 태스크를 끝내지 않고 이어 갑니다. 두 번째 판독 뒤에는 이어 가지 않고, 반복 횟수에 도달했으면 태스크를 끝내고 아니면 `Account`로 갑니다. 두 번째 판독도 "기록 조건"대로 기록합니다.
@@ -358,7 +358,7 @@ flowchart TD
     B --> PT["Gacha_PullTen<br>10회 뽑기"]
     PT -- "순오리지늄 부족 · GachaFail" --> PO["Gacha_PullOne<br>1회 뽑기"]
     PO -- "순오리지늄 부족 · GachaFail" --> OO["Gacha_OperatorOpen<br>오퍼레이터 목록"]
-    OO --> RA["Gacha_Rarity<br>레어도 정렬"]
+    OO --> RA["Gacha_Rarity<br>레어도 내림차순 정렬"]
     RA --> RT["Gacha_Return<br>뒤로가기 → 메인화면"]
     RT --> RO["Gacha_Reopen<br>오퍼레이터 재진입"]
     RO --> SC["Gacha_Scan<br>6성 판독 · 기록"]
