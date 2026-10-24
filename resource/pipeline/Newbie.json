@@ -36,7 +36,7 @@
     },
 
     "Newbie_Pull": {
-        "focus": "초보자 뽑기",
+        "focus": "1회 진행",
         "next": ["[JumpBack]Loading", "Newbie_Pull_Skip"]
     },
     "Newbie_Pull_Skip": {

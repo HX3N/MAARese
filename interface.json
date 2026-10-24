@@ -26,7 +26,7 @@
             "name": "리세 시작",
             "entry": "Account_Entry",
             "default_check": true,
-            "description": "**MuMu Player (Android 12)** 또는 **Root 권한 활성화된 에뮬레이터** 권장\n\n**1280×720 240 DPI** · **Root 권한 활성화** · **램 4GB 이상**\n\n자세한 사용법은 [README](https://github.com/HX3N/MAARese#readme)를 읽어 주세요.",
+            "description": "\n\n#### 권장 에뮬레이터\n\n- **Android 12 이하 에뮬레이터**\n- **MuMuPlayer (Android 12)**\n- **LDPlayer 9**\n\n---\n\n#### 권장 설정\n\n- **1280×720 240 DPI**\n- **Root 권한 활성화**\n- **ADB 활성화**\n- **램 4GB 이상**\n\n---\n\n자세한 사용법은 [README](https://github.com/HX3N/MAARese#readme)를 읽어 주세요.",
             "option": [
                 "리세 전략",
                 "계정 이름",
@@ -63,7 +63,7 @@
                 },
                 {
                     "name": "0-1 연장",
-                    "description": "0-1 퇴각 후 헤드헌팅\n\n6성이 **진행 조건** 이상이면 0-11 클리어 후 한 번 더 헤드헌팅",
+                    "description": "0-1 퇴각 후 헤드헌팅\n\n**진행 조건**을 충족하면 0-11 클리어 후 한 번 더 헤드헌팅",
                     "option": ["진행 조건"],
                     "pipeline_override": {
                         "Newbie_Branch_Exit_Mail": { "enabled": true },
