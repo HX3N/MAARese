@@ -103,8 +103,13 @@
             }
         },
         "action": {
-            "type": "Click"
-        }
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClickRetry",
+                "custom_action_param": { "wait_ms": 3000, "until": ["BattleExitConfirm"] }
+            }
+        },
+        "on_error": ["BattleRetreat"]
     },
     "BattleExitConfirm": {
         "recognition": {

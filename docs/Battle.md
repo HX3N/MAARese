@@ -31,6 +31,7 @@ flowchart LR
 | `BattleResult` | "종료"를 누르기 반복 | "종료"가 사라지면(`inverse`) `BattleResultNext` |
 
 - 작전 개시 버튼은 `ClickRetry`로 눌러 화면 전환 중 연타를 막습니다. 실패 뒤 경로는 [AGENTS.md](../AGENTS.md)의 "루프 구조"·"흐름 구조"의 재확인, 동작은 [CONTRIBUTING.md](../CONTRIBUTING.md)의 ClickRetry에 있습니다. 여러 루프가 쓰는 `OperationStart`는 호출 루프가 `anchor` `OperationStartRetry`로 돌아갈 루프를 정하고(`BattleEngage`에서 해제), `BattleEnter`에서만 쓰는 `OperationStart2`는 `BattleEnter`로 돌아갑니다.
+- 퇴각 버튼(`BattleExit`)도 `ClickRetry`로 누릅니다. 누른 뒤 팝업이 늦게 뜨면 루프가 퇴각 버튼을 한 번 더 눌러 열리던 팝업이 닫히므로, 팝업(`BattleExitConfirm`)이 뜨거나 버튼이 사라질 때까지 다시 누르지 않습니다(`until`, `wait_ms` 3000). 실패하면 `BattleRetreat`로 돌아갑니다.
 - `BattleEngage`는 전투 화면이 잡힌 뒤 잠시 기다렸다 배치 루프로 넘깁니다. 전투 화면 직후 늦게 뜨는 대사를 배치 루프 맨 앞의 `SkipPlot`이 배치보다 먼저 넘기게 하려는 것입니다.
 
 ## 2. 인식
