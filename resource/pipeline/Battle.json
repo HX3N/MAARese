@@ -11,7 +11,8 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 1000
     },
     "BattleSpeed": {
         "doc": "Deploy가 실행하는 배속 버튼 인식. 오퍼레이터 선택 중에는 비활성화되어 보이지 않음",
