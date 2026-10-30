@@ -1,5 +1,6 @@
 import functools
 import time
+from typing import Callable
 
 import numpy as np
 from maa.agent.agent_server import AgentServer
@@ -28,13 +29,22 @@ RESULT_EVENTS = (
     "Node.PipelineNode.Starting",
 )
 BANNER_TIMEOUT_S = 60
-BANNER_RECRUIT_NODE = "Gacha_Banner_Recruit"
-BANNER_NEWBIE_NODE = "Gacha_Banner_Newbie"
-BANNER_LIMITED_NODE = "Gacha_Banner_Limited"
+BANNER_ICON_NODE = "Gacha_Banner_Icon"
+BANNER_ICON_SELECT_NODE = "Gacha_Banner_IconSelect"
+BANNER_SELECT_NODE = "Gacha_Banner_Select"
+BANNER_UNSELECT_NODE = "Gacha_Banner_Unselect"
+BANNER_GUIDE_NODE = "Gacha_Banner_Guide"
+BANNER_MISSING_NODE = "Gacha_Banner_Missing"
+BANNER_RIGHT_ARROW_NODE = "Gacha_Banner_RightArrow"
+MISSING_CONFIRM = 2
 BANNER_RIGHT_NODE = "Gacha_Banner_Right"
 BANNER_LEFT_NODE = "Gacha_Banner_Left"
-BANNER_TEN_NODE = "Gacha_PullTen_Click"
-BANNER_STEPS = {"초보자": 1, "한정": 2, "통상": 3}
+BANNER_POSITIONS = 6
+ICON_SIZE = (44, 25)
+SLOT_OFFSET = (66, 8)
+SLOT_PITCH = 64
+SLOT_SIZE = (47, 11)
+SLOT_PAD = 3
 CHANGE_WAIT_MS = 3000
 CHANGE_DIFF = 10
 TURN_RETRY = 3
@@ -146,57 +156,103 @@ def settled(context: Context) -> np.ndarray:
     return image
 
 
-def banner_kind(context: Context, image: np.ndarray) -> str | None:
-    if hit(context, BANNER_RECRUIT_NODE, image):
-        return "공개모집"
-    if hit(context, BANNER_NEWBIE_NODE, image):
-        return "초보자"
-    if not hit(context, BANNER_TEN_NODE, image):
+def roi_hit(context: Context, image: np.ndarray, node: str, roi: list[int]) -> bool:
+    return hit(context, node, image, {node: {"recognition": {"param": {"roi": roi}}}}) is not None
+
+
+def slot_roi(anchor: tuple[int, int], position: int) -> list[int]:
+    x = anchor[0] + SLOT_OFFSET[0] + SLOT_PITCH * (position - 1) - SLOT_PAD
+    y = anchor[1] + SLOT_OFFSET[1] - SLOT_PAD
+    return [x, y, SLOT_SIZE[0] + 2 * SLOT_PAD, SLOT_SIZE[1] + 2 * SLOT_PAD]
+
+
+def find_anchor(context: Context, image: np.ndarray, icon_node: str, first_slot_nodes: tuple[str, ...]) -> tuple[int, int] | None:
+    detail = hit(context, icon_node, image)
+    if detail is None:
         return None
-    if hit(context, BANNER_LIMITED_NODE, image):
-        return "한정"
-    return "통상"
+    for result in detail.filtered_results:
+        anchor = (result.box[0], result.box[1])
+        if any(roi_hit(context, image, node, slot_roi(anchor, 1)) for node in first_slot_nodes):
+            return anchor
+    return None
 
 
-def turn_right(context: Context, before: np.ndarray) -> bool:
+def read_position(context: Context, image: np.ndarray) -> tuple[int, tuple[int, int]] | None:
+    anchor = find_anchor(context, image, BANNER_ICON_NODE, (BANNER_SELECT_NODE, BANNER_UNSELECT_NODE))
+    if anchor is not None:
+        for position in range(1, BANNER_POSITIONS + 1):
+            if roi_hit(context, image, BANNER_SELECT_NODE, slot_roi(anchor, position)):
+                return position, anchor
+        return None
+    anchor = find_anchor(context, image, BANNER_ICON_SELECT_NODE, (BANNER_UNSELECT_NODE,))
+    return (0, anchor) if anchor is not None else None
+
+
+def banner_count(context: Context, image: np.ndarray, anchor: tuple[int, int], selected: int) -> int:
+    count = 0
+    while count < BANNER_POSITIONS:
+        position = count + 1
+        if position != selected and not roi_hit(context, image, BANNER_UNSELECT_NODE, slot_roi(anchor, position)):
+            break
+        count = position
+    return count
+
+
+def banner_label(position: int) -> str:
+    return "공개모집" if position == 0 else str(position)
+
+
+def list_line(context: Context, image: np.ndarray, at: int, anchor: tuple[int, int]) -> str:
+    labels = [banner_label(position) for position in range(banner_count(context, image, anchor, at) + 1)]
+    labels[at] = f"[{labels[at]}]"
+    return "배너 목록 · " + " · ".join(labels)
+
+
+def show_guide(context: Context, lines: list[str]) -> None:
+    context.run_task(BANNER_GUIDE_NODE, {BANNER_GUIDE_NODE: {"focus": dict(zip(RESULT_EVENTS, lines))}})
+
+
+def selected_at(context: Context, image: np.ndarray, anchor: tuple[int, int], position: int) -> bool:
+    if position == 0:
+        roi = [anchor[0] - SLOT_PAD, anchor[1] - SLOT_PAD, ICON_SIZE[0] + 2 * SLOT_PAD, ICON_SIZE[1] + 2 * SLOT_PAD]
+        return roi_hit(context, image, BANNER_ICON_SELECT_NODE, roi)
+    return roi_hit(context, image, BANNER_SELECT_NODE, slot_roi(anchor, position))
+
+
+def turn(context: Context, node: str, moved: Callable[[np.ndarray], bool]) -> bool:
     for _ in range(TURN_RETRY):
         if context.tasker.stopping:
             return False
-        context.run_action(BANNER_RIGHT_NODE)
+        context.run_action(node)
         deadline = time.monotonic() + CHANGE_WAIT_MS / 1000
         while time.monotonic() < deadline:
             sleep_ms(LOOP_INTERVAL_MS)
-            if changed(before, screencap(context)):
+            if moved(screencap(context)):
                 return True
         log("SelectBanner", "click ignored, retrying")
     return False
 
 
-def select_by_position(context: Context, banner: str, deadline: float) -> bool:
-    log("SelectBanner", f"{banner}: not found, counting from 공개모집")
-    while not hit(context, BANNER_RECRUIT_NODE, settled(context)):
-        if context.tasker.stopping or time.monotonic() >= deadline:
-            return False
-        context.run_action(BANNER_LEFT_NODE)
-    for _ in range(BANNER_STEPS[banner]):
-        if not turn_right(context, settled(context)):
-            log("SelectBanner", f"{banner}: cannot move right")
-            return False
-    log("SelectBanner", f"{banner}: selected by position")
-    return True
+def stop_missing(context: Context, node: str, position: int) -> None:
+    content = f"[color:#FFD700]⚠ {position}번 배너 없음, 작업 종료[/color]"
+    focus = {"Node.Recognition.Succeeded": {"content": content, "display": ["log", "toast"]}}
+    context.override_pipeline({BANNER_MISSING_NODE: {"focus": focus}})
+    context.override_next(node, [BANNER_MISSING_NODE])
 
 
 @AgentServer.custom_action("SelectBanner")
 class SelectBanner(CustomAction):
-    PARAMS = {"required": ["banner"], "choices": {"banner": ["초보자", "한정", "통상"]}}
+    PARAMS = {"required": ["position"], "choices": {"position": [1, 2, 3, 4, 5, 6]}}
 
     @guard_run
     def run(self, context: Context, argv: CustomAction.RunArg) -> bool:
         params = load_params(self, argv.custom_action_param)
         if params is None:
             return False
-        banner = params["banner"]
+        position = params["position"]
 
+        guided = False
+        blocked = 0
         deadline = time.monotonic() + BANNER_TIMEOUT_S
         while time.monotonic() < deadline:
             if context.tasker.stopping:
@@ -205,14 +261,36 @@ class SelectBanner(CustomAction):
             if hit(context, LOADING_NODE, image):
                 sleep_ms(LOOP_INTERVAL_MS)
                 continue
-            kind = banner_kind(context, image)
-            if kind == banner:
-                log("SelectBanner", f"{banner}: selected")
+            current = read_position(context, image)
+            if current is None:
+                log("SelectBanner", f"{position}: bar not read")
+                sleep_ms(LOOP_INTERVAL_MS)
+                continue
+            at, anchor = current
+            if not guided:
+                lines = [list_line(context, image, at, anchor)]
+                if at != position:
+                    lines.append(f"배너 이동 · [{banner_label(at)}] > [{banner_label(position)}]")
+                show_guide(context, lines)
+                guided = True
+            if at == position:
+                log("SelectBanner", f"{position}: selected")
                 return True
 
-            log("SelectBanner", f"{banner}: at {kind or '?'}, moving right")
-            if not turn_right(context, image):
-                return select_by_position(context, banner, deadline)
+            log("SelectBanner", f"{position}: at {at}, moving")
+            node = BANNER_RIGHT_NODE if at < position else BANNER_LEFT_NODE
+            if turn(context, node, lambda after: not selected_at(context, after, anchor, at)):
+                blocked = 0
+                continue
+            count = banner_count(context, image, anchor, at)
+            if at < position and at == count and not hit(context, BANNER_RIGHT_ARROW_NODE, screencap(context)):
+                blocked += 1
+                log("SelectBanner", f"{position}: end of {count} banners ({blocked}/{MISSING_CONFIRM})")
+                if blocked >= MISSING_CONFIRM:
+                    stop_missing(context, argv.node_name, position)
+                    return True
+            else:
+                blocked = 0
 
-        log("SelectBanner", f"{banner}: timeout")
+        log("SelectBanner", f"{position}: timeout")
         return False

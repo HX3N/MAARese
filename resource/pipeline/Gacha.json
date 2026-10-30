@@ -4,12 +4,12 @@
         "next": ["[JumpBack]Loading", "Gacha_Exit"]
     },
     "Gacha_Exit": {
-        "doc": "banner = interface 헤드헌팅 배너",
+        "doc": "position = interface 헤드헌팅 배너",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "SelectBanner",
-                "custom_action_param": { "banner": "한정" }
+                "custom_action_param": { "position": 2 }
             }
         },
         "on_error": ["Gacha"],
@@ -31,50 +31,124 @@
             }
         }
     },
-    "Gacha_Banner_Recruit": {
-        "doc": "공개모집 탭 인식용",
+    "Gacha_Banner_Icon": {
+        "doc": "배너 표시줄 기준점: 공개모집 미선택 회색 아이콘",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
-                "roi": [100, 110, 170, 50],
-                "expected": "공개모집"
+                "template": "Gacha/BannerIcon.png",
+                "roi": [200, 55, 880, 45],
+                "threshold": 0.97,
+                "method": 10001,
+                "green_mask": true
             }
         }
     },
-    "Gacha_Banner_Newbie": {
-        "doc": "초보자 배너 인식용",
+    "Gacha_Banner_IconSelect": {
+        "doc": "배너 표시줄 기준점: 공개모집 선택 흰 아이콘",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
-                "roi": [1059, 588, 145, 36],
-                "expected": "3800",
-                "model": "en_us"
+                "template": "Gacha/BannerIconSelect.png",
+                "roi": [200, 55, 880, 45],
+                "threshold": 0.97,
+                "method": 10001,
+                "green_mask": true
             }
         }
     },
-    "Gacha_Banner_Limited": {
-        "doc": "한정 배너 인식용. 배너가 바뀌면 roi 안의 배너 그림을 잘라 LimitedBanner.png를 교체",
+    "Gacha_Banner_Select": {
+        "doc": "SelectBanner가 roi를 칸마다 바꿔 실행하는 선택 캡슐 인식",
         "recognition": {
-            "type": "Or",
+            "type": "TemplateMatch",
             "param": {
-                "any_of": [
-                    {
-                        "type": "TemplateMatch",
-                        "param": {
-                            "template": "LimitedBanner.png",
-                            "roi": [440, 130, 400, 350]
-                        }
-                    },
-                    {
-                        "type": "OCR",
-                        "param": {
-                            "roi": [815, 625, 170, 45],
-                            "expected": "보너스"
-                        }
-                    }
-                ]
+                "template": "Gacha/BannerSelect.png",
+                "roi": [200, 55, 880, 45],
+                "threshold": 0.97,
+                "method": 10001,
+                "green_mask": true
             }
         }
+    },
+    "Gacha_Banner_Unselect": {
+        "doc": "SelectBanner가 roi를 칸마다 바꿔 실행하는 미선택 캡슐 인식",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Gacha/BannerUnselect.png",
+                "roi": [200, 55, 880, 45],
+                "threshold": 0.97,
+                "method": 10001,
+                "green_mask": true
+            }
+        }
+    },
+    "Gacha_Banner_Test1": {
+        "doc": "배너 이동 테스트 진입: 1번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 1 } }
+        }
+    },
+    "Gacha_Banner_Test2": {
+        "doc": "배너 이동 테스트 진입: 2번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 2 } }
+        }
+    },
+    "Gacha_Banner_Test3": {
+        "doc": "배너 이동 테스트 진입: 3번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 3 } }
+        }
+    },
+    "Gacha_Banner_Test4": {
+        "doc": "배너 이동 테스트 진입: 4번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 4 } }
+        }
+    },
+    "Gacha_Banner_Test5": {
+        "doc": "배너 이동 테스트 진입: 5번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 5 } }
+        }
+    },
+    "Gacha_Banner_Test6": {
+        "doc": "배너 이동 테스트 진입: 6번 배너",
+        "action": {
+            "type": "Custom",
+            "param": { "custom_action": "SelectBanner", "custom_action_param": { "position": 6 } }
+        }
+    },
+    "Gacha_Banner_RightArrow": {
+        "doc": "배너 오른쪽 화살표. 마지막 배너에서 사라짐",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Gacha/BannerRight.png",
+                "roi": [1200, 340, 80, 110],
+                "threshold": 0.97,
+                "method": 10001,
+                "green_mask": true
+            }
+        }
+    },
+    "Gacha_Banner_Missing": {
+        "doc": "SelectBanner가 고른 번호의 배너가 없을 때 next로 이어 붙이는 작업 종료 안내. 문구의 번호·배너 수는 SelectBanner가 채움",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "[color:#FFD700]⚠ 고른 번호의 배너 없음, 작업 종료[/color]",
+                "display": ["log", "toast"]
+            }
+        }
+    },
+    "Gacha_Banner_Guide": {
+        "doc": "SelectBanner가 이동 전에 run_task로 실행해 focus에 배너 목록·이동 줄을 띄우는 안내"
     },
 
     "Gacha_PullTen": {

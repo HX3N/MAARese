@@ -91,30 +91,54 @@
         },
         "헤드헌팅 배너": {
             "type": "select",
-            "description": "헤드헌팅 화면에서 어떤 배너를 뽑을지 고릅니다.\n\n`기본값: 한정`",
-            "default_case": "한정",
+            "description": "헤드헌팅 화면에서 왼쪽부터 몇 번째 배너를 뽑을지 고릅니다.\n\n3번째 이후 배너는 시기마다 바뀝니다.\n\n고른 번호의 배너가 없으면 작업을 멈춥니다.\n\n`기본값: 2 (픽업 배너)`",
+            "default_case": "2 (픽업 배너)",
             "cases": [
                 {
-                    "name": "한정",
+                    "name": "1 (초보자)",
                     "pipeline_override": {
                         "Gacha_Exit": {
-                            "action": { "param": { "custom_action_param": { "banner": "한정" } } }
+                            "action": { "param": { "custom_action_param": { "position": 1 } } }
                         }
                     }
                 },
                 {
-                    "name": "통상",
+                    "name": "2 (픽업 배너)",
                     "pipeline_override": {
                         "Gacha_Exit": {
-                            "action": { "param": { "custom_action_param": { "banner": "통상" } } }
+                            "action": { "param": { "custom_action_param": { "position": 2 } } }
                         }
                     }
                 },
                 {
-                    "name": "초보자",
+                    "name": "3",
                     "pipeline_override": {
                         "Gacha_Exit": {
-                            "action": { "param": { "custom_action_param": { "banner": "초보자" } } }
+                            "action": { "param": { "custom_action_param": { "position": 3 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "4",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "position": 4 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "5",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "position": 5 } } }
+                        }
+                    }
+                },
+                {
+                    "name": "6",
+                    "pipeline_override": {
+                        "Gacha_Exit": {
+                            "action": { "param": { "custom_action_param": { "position": 6 } } }
                         }
                     }
                 }
