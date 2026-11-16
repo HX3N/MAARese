@@ -339,11 +339,11 @@
         "next": ["Gacha_Pull_Spam"]
     },
     "Gacha_Pull_Spam": {
-        "doc": "배너 화면(내비게이션 버튼)이 나올 때까지 중앙 연타",
+        "doc": "배너 화면(내비게이션 버튼)이 나올 때까지 배너 위치 표시줄 바로 위 연타. 배너 이름·미리보기 버튼을 피하는 자리",
         "action": {
             "type": "Click",
             "param": {
-                "target": [440, 260, 400, 200]
+                "target": [490, 54, 300, 10]
             }
         },
         "next": ["Gacha_Pull_Spam_Done", "Gacha_Pull_Spam"]
